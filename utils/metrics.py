@@ -3,32 +3,57 @@ This file will contain the metrics of the framework
 """
 import numpy as np
 
-# TODO Add metrics for segmentation
 
-def _fast_hist(label_pred, label_true, num_classes):
-    mask = (label_true >= 0) & (label_true < num_classes)
-    hist = np.bincount(
-        num_classes * label_true[mask].astype(int) +
-        label_pred[mask], minlength=num_classes ** 2).reshape(num_classes, num_classes)
-    return hist
+class IOU:
+    """
+    Class to calculate mean-iou using fast_hist method
+    """
 
+    def __init__(self, num_classes):
+        """
+        number of classes in segmentation
+        :param num_classes:
+        """
+        self.num_classes = num_classes
+        self.hist = np.zeros((num_classes, num_classes))
 
-def evaluate(predictions, gts, num_classes):
-    hist = np.zeros((num_classes, num_classes))
-    for lp, lt in zip(predictions, gts):
-        hist += _fast_hist(lp.flatten(), lt.flatten(), num_classes)
-    # axis 0: gt, axis 1: prediction
-    acc = np.diag(hist).sum() / hist.sum()
-    acc_cls = np.diag(hist) / hist.sum(axis=1)
-    acc_cls = np.nanmean(acc_cls)
-    iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
-    mean_iu = np.nanmean(iu)
-    freq = hist.sum(axis=1) / hist.sum()
-    fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
-    return acc, acc_cls, mean_iu, iu, fwavacc
+    def _fast_hist(self, label_pred, label_true):
+        mask = (label_true >= 0) & (label_true < self.num_classes)
+        hist = np.bincount(
+            self.num_classes * label_true[mask].astype(int) +
+            label_pred[mask], minlength=self.num_classes ** 2).reshape(self.num_classes, self.num_classes)
+        return hist
+
+    def add_batch(self, predictions, gts):
+        """
+        it calculate a batch in every iteration in training or testing
+        :param predictions:
+        :param gts:
+        :return:
+        """
+        for lp, lt in zip(predictions, gts):
+            self.hist += self._fast_hist(lp.flatten(), lt.flatten())
+
+    def evaluate(self):
+        """
+        It returns all useful calculations from Confusion matrix
+        :return: acc, acc_cls, iu, mean_iu, fwavacc
+        """
+        acc = np.diag(self.hist).sum() / self.hist.sum()
+        acc_cls = np.diag(self.hist) / self.hist.sum(axis=1)
+        acc_cls = np.nanmean(acc_cls)
+        iu = np.diag(self.hist) / (self.hist.sum(axis=1) + self.hist.sum(axis=0) - np.diag(self.hist))
+        mean_iu = np.nanmean(iu)
+        freq = self.hist.sum(axis=1) / self.hist.sum()
+        fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
+        return acc, acc_cls, iu, mean_iu, fwavacc
 
 
 class AverageMeter:
+    """
+    Class to be an average meter for any average metric like loss, accuracy, etc..
+    """
+
     def __init__(self):
         self.value = 0
         self.avg = 0
@@ -54,6 +79,10 @@ class AverageMeter:
 
 
 class AverageMeterList:
+    """
+    Class to be an average meter for any average metric List structure like mean_iou_per_class
+    """
+
     def __init__(self, num_cls):
         self.cls = num_cls
         self.value = [0] * self.cls

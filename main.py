@@ -1,7 +1,5 @@
 """
-Main procedure for DCGAN project
-
-Authors: Hager Rady & Mo'men AbdelRazek
+This Template Project is created and authored by Mo'men & Hager
 
 Main
 -Capture the config file
@@ -11,7 +9,7 @@ Main
 """
 
 import argparse
-from utils.config import process_config
+from utils.config import *
 
 from agents import *
 
