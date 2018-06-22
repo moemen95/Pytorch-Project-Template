@@ -1,5 +1,5 @@
 """
-The Base Agent class, where all other agents inhert from, that contains definitions for all the necessary functions
+The Base Agent class, where all other agents inherit from, that contains definitions for all the necessary functions
 """
 
 
@@ -7,9 +7,9 @@ class BaseAgent:
     """
     This base class will contain the base functions to be overloaded by any agent you will implement.
     """
+
     def __init__(self, config):
         self.config = config
-
 
     def load_checkpoint(self, file_name):
         """
@@ -19,7 +19,7 @@ class BaseAgent:
         """
         raise NotImplementedError
 
-    def save_checkpoint(self, file_name="checkpoint.pth.tar",is_best=0):
+    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=0):
         """
         Checkpoint saver
         :param file_name: name of the checkpoint file
