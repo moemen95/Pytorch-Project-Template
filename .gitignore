@@ -99,3 +99,18 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Pycharm
+.idea/
+
+# Experiments
+experiments/*
+!experiments/.keep
+
+# Pretrained Weights
+pretrained_weights/*
+!pretrained_weights/.keep
+
+# Data
+data/*
+!data/.keep
