@@ -1,0 +1,31 @@
+{
+  "exp_name": "example_exp_0",
+  "agent": "",
+  "mode": "train",
+
+  "cuda": true,
+  "seed": 1337,
+
+  "some_model_attribute": 0,
+
+  "batch_size": 64,
+
+  "learning_rate": 0.0002,
+  "weight_decay": 0,
+  "beta1": 0.5,
+  "beta2": 0.999,
+
+  "max_epoch": 20,
+
+  "validate_every": 2,
+
+  "checkpoint_file": "checkpoint.pth.tar",
+
+  "data_loader": "ExampleDataLoader",
+  "data_loader_workers": 2,
+  "pin_memory": true,
+  "async_loading": true,
+
+  "data_mode": "imgs",
+  "data_folder": "./data/example"
+}
