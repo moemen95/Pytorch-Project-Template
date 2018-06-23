@@ -12,6 +12,7 @@ from torch import nn
 from torch.backends import cudnn
 from torch.autograd import Variable
 import torch.optim as optim
+import torch.nn.functional as F
 
 from agents.base import BaseAgent
 
@@ -25,23 +26,22 @@ from utils.misc import print_cuda_statistics
 cudnn.benchmark = True
 
 
-class ExampleAgent(BaseAgent):
+class MnistAgent(BaseAgent):
 
     def __init__(self, config):
         super().__init__(config)
 
         # define models
-        self.model = Mnist(config=config)
+        self.model = Mnist()
 
         # define data_loader
         self.data_loader = MnistDataLoader(config=config)
 
         # define loss
-        self.loss = None
+        self.loss = nn.NLLLoss()
 
         # define optimizers for both generator and discriminator
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.learning_rate, momentum=self.config.momentum)
-
 
         # initialize counter
         self.current_epoch = 0
@@ -59,7 +59,7 @@ class ExampleAgent(BaseAgent):
         self.manual_seed = self.config.seed
         if self.cuda:
             print("Program will run on *****GPU-CUDA***** ")
-            torch.cuda.manual_seed_all(self.manual_seed)
+            torch.cuda.manual_seed(self.manual_seed)
             print_cuda_statistics()
 
             self.device = torch.device("cuda")
@@ -69,7 +69,7 @@ class ExampleAgent(BaseAgent):
 
         else:
             self.device = torch.device("cpu")
-            torch.manual_seed_all(self.manual_seed)
+            torch.manual_seed(self.manual_seed)
             print("Program will run on *****CPU*****\n")
 
         # Model Loading from the latest checkpoint if not found start from scratch.
@@ -113,6 +113,8 @@ class ExampleAgent(BaseAgent):
         for epoch in range(1, self.config.max_epoch + 1):
             self.train_one_epoch()
             self.validate()
+
+            self.current_epoch += 1
     def train_one_epoch(self):
         """
         One epoch of training
@@ -124,13 +126,14 @@ class ExampleAgent(BaseAgent):
             data, target = data.to(self.device), target.to(self.device)
             self.optimizer.zero_grad()
             output = self.model(data)
-            loss = self.loss(output, target)
+            loss = F.nll_loss(output, target)
             loss.backward()
             self.optimizer.step()
             if batch_idx % self.config.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     self.current_epoch, batch_idx * len(data), len(self.data_loader.train_loader.dataset),
                            100. * batch_idx / len(self.data_loader.train_loader), loss.item()))
+            self.current_iteration += 1
 
     def validate(self):
         """
@@ -144,7 +147,7 @@ class ExampleAgent(BaseAgent):
             for data, target in self.data_loader.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
-                test_loss += self.loss(output, target, size_average=False).item()  # sum up batch loss
+                test_loss += F.nll_loss(output, target, size_average=False).item()  # sum up batch loss
                 pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
                 correct += pred.eq(target.view_as(pred)).sum().item()
 

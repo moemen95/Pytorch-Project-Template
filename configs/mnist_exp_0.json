@@ -1,6 +1,6 @@
 {
   "exp_name": "mnist_exp_0",
-  "agent": "",
+  "agent": "MnistAgent",
   "mode": "train",
 
   "cuda": true,

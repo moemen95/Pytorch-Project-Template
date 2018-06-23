@@ -15,7 +15,7 @@ class MnistDataLoader:
         :param config:
         """
         self.config = config
-        if config.data_mode == "src":
+        if config.data_mode == "download":
             self.train_loader = torch.utils.data.DataLoader(
                 datasets.MNIST('../data', train=True, download=True,
                                transform=transforms.Compose([
