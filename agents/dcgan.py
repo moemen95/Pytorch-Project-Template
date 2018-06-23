@@ -12,7 +12,7 @@ import torchvision.utils as vutils
 
 from graphs.models.dcgan_generator import Generator
 from graphs.models.dcgan_discriminator import Discriminator
-from graphs.losses.loss import BinaryCrossEntropy
+from graphs.losses.bce import BinaryCrossEntropy
 from datasets.celebA import CelebADataLoader
 
 from tensorboardX import SummaryWriter
