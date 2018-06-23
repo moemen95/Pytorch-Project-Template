@@ -1,14 +1,14 @@
-* Mnist Tutorial
-** Adapting Mnist Example into the template
+# Mnist Tutorial
+This is detailed tutorial on how to adapt your pytorch project into our project structure.
 
-We will walk through a Pytorch basic example on Mnist and transform it into our project structure.
+We will walk through a Pytorch [basic model on Mnist](https://github.com/pytorch/examples/blob/master/mnist/main.py) and transform it into our template format.
 
-0. The config file:
+### 0. The config file
 This is the core contribution of our template. We duplicate '/configs/exmaple_exp_0.json' and rename it to [mnist_exp_0.json](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json).
-Rename the values inside the config file. As we go, we will add and modify the configurations keys and values whenever needed.
+We rename the agent and dataloader to the ones for Mnist. As we go, we will add and modify the configurations keys and values whenever needed.
 
 
-1. Main model:
+### 1. Main model
 
 We start by the model definition, defined here in the example
 
@@ -41,12 +41,12 @@ A slight change will be adding the weight initializer at the end of the model co
 You can find it [here](https://github.com/moemen95/PyTorch-Project-Template/blob/master/graphs/models/mnist.py).
 
 
-2. Loss:
+### 2. Loss
 The example is using nll_loss as a function called during training and test times. We usually add a class for our loss into the folder 'graphs/losses'.
-Since we don't define our own loss function, we can use the nll loss function from Pytorch directly.
+Since we don't define our own loss function, we can use the same one from Pytorch directly.
 
 
-3. DataLoader:
+### 3. DataLoader
 We duplicate the example file in we have in the folder '/datasets' and rename it into [mnist.py](https://github.com/moemen95/PyTorch-Project-Template/blob/master/datasets/mnist.py). The class is renamed into 'MnistDataLoader'.
 These is the main part concerned with data loading.
 ```
@@ -88,12 +88,12 @@ to:
 ```
 And we will add ```"test_batch_size": 1000 ``` inside the [config file]((https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json))
 
-The parameters used are now passed from withing self.config
+The parameters used are now passed from within ``` self.config ```
 
 
-4. Agent:
-We duplicate the example file in we have in the folder '/agents' and rename it into mnist.py.
-*** In the constructor,
+### 4. Agent
+This is where all the action take places. We duplicate the example file in we have in the folder '/agents' and rename it into mnist.py.
+#### The agent init:
 - We define our model, imported from '/graphs/models/mnist.py'. Don't forget to the import statement at the beginning of the file
 ```
 from graphs.models.mnist import Mnist
@@ -118,7 +118,7 @@ And edit these fields in the [config file](https://github.com/moemen95/PyTorch-P
   "momentum": 0.5,
 ```
 There is nothing else to be modified in the constructor.
-*** Train function:
+#### Train function:
 In our reference example, we have this code inside the main function that should move to the function 'train'
 ```
     for epoch in range(1, args.epochs + 1):
@@ -134,7 +134,7 @@ We don't need to pass all these parameters, so it will be changed into
 - add ``` self.current_epoch += 1 ```
 Don't forget to update the max_epoch field in the config file with that value given in the main args.
 
-*** Train One epoch function:
+#### Train One epoch function:
 This function will include all what is inside the function 'train'
 
 ```
@@ -159,7 +159,7 @@ It is only summarized in naming changes.
 - ``` "log_interval": 10 ``` field should be added into the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json).
 - ``` train_loader ``` is changed into ``` self.data_laoder.train_loader ```
 - add ``` self.current_iteration += 1 ```
-*** Validate function:
+#### Validate function:
 
 This function will include all what is inside the function 'test'
 
@@ -182,5 +182,11 @@ It is only summarized in naming changes.
 - ```model``` changed into ``` self.model ```
 - ``` test_loader ``` is changed into ``` self.data_laoder.test_loader ```
 
-5. In the reference example main function, Go through the arguments parameters and make sure they are included inside the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json), with the correct values.
+### 5. Model Verification:
+
+In the reference example main function, Go through the arguments parameters and make sure they are included inside the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json), with the correct values.
 e.g. seed value
+
+- To run your code, change the config file name inside run.sh to be ``` mnist_exp_0.json ```
+- On the terminal, run ``` sh run.sh ```
+- Verify the results relative to the original example
