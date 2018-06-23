@@ -10,8 +10,8 @@ from torch.backends import cudnn
 from torch.autograd import Variable
 import torchvision.utils as vutils
 
-from graphs.models.generator import Generator
-from graphs.models.discriminator import Discriminator
+from graphs.models.dcgan_generator import Generator
+from graphs.models.dcgan_discriminator import Discriminator
 from graphs.losses.loss import BinaryCrossEntropy
 from datasets.celebA import CelebADataLoader
 
