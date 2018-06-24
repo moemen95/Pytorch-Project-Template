@@ -1,5 +1,5 @@
 # Mnist Tutorial
-This is detailed tutorial on how to adapt your pytorch project into our project structure.
+This is detailed tutorial on how to adapt your Pytorch code into our project structure.
 
 We will walk through a Pytorch [basic model on Mnist](https://github.com/pytorch/examples/blob/master/mnist/main.py) and transform it into our template format.
 
@@ -92,7 +92,7 @@ The parameters used are now passed from within ``` self.config ```
 
 
 ### 4. Agent
-This is where all the action take places. We duplicate the example file in we have in the folder '/agents' and rename it into mnist.py.
+This is where all the action take places. We duplicate the example file in we have in the folder '/agents' and rename it into [mnist.py](https://github.com/moemen95/PyTorch-Project-Template/blob/master/agents/mnist.py).
 #### The agent init:
 - We define our model, imported from '/graphs/models/mnist.py'. Don't forget to the import statement at the beginning of the file
 ```
@@ -135,7 +135,7 @@ We don't need to pass all these parameters, so it will be changed into
 Don't forget to update the max_epoch field in the config file with that value given in the main args.
 
 #### Train One epoch function:
-This function will include all what is inside the function 'train'
+In the reference example, we have this code responsible for model training inside the function 'train'
 
 ```
 def train(args, model, device, train_loader, optimizer, epoch):
@@ -153,15 +153,15 @@ def train(args, model, device, train_loader, optimizer, epoch):
             100. * batch_idx / len(train_loader), loss.item()))
 ```
 
-We will copy this into 'train_one_epoch' with no parameters to be passed
-It is only summarized in naming changes.
+We will copy this into 'train_one_epoch' with no arguments to be passed and some naming changes:
 - ```model``` changed into ``` self.model ```
 - ``` "log_interval": 10 ``` field should be added into the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json).
 - ``` train_loader ``` is changed into ``` self.data_laoder.train_loader ```
 - add ``` self.current_iteration += 1 ```
+
 #### Validate function:
 
-This function will include all what is inside the function 'test'
+In the reference example, we have this code responsible for model testing inside the function 'test'
 
 ```
 def test(args, model, device, test_loader):
@@ -177,8 +177,8 @@ def test(args, model, device, test_loader):
             correct += pred.eq(target.view_as(pred)).sum().item()
 ```
 
-We will copy this into 'validate' with no parameters to be passed
-It is only summarized in naming changes.
+We will copy this into 'validate' with no arguments to be passed and some naming changes:
+
 - ```model``` changed into ``` self.model ```
 - ``` test_loader ``` is changed into ``` self.data_laoder.test_loader ```
 
@@ -190,3 +190,6 @@ e.g. seed value
 - To run your code, change the config file name inside run.sh to be ``` mnist_exp_0.json ```
 - On the terminal, run ``` sh run.sh ```
 - Verify the results relative to the original example
+
+## Summary:
+Model, agent and dataloader are the main building blocks in the template. The provided examples can be used as a start to migrate any Pytorch model into our template structure.
