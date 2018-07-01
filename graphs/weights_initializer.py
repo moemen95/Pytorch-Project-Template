@@ -1,5 +1,5 @@
 """
-A file for all model's weight initialization functions
+A file for all models' weight initialization functions
 """
 import torch
 from torch import nn

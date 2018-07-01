@@ -50,8 +50,6 @@ class CondenseNetAgent(BaseAgent):
         if self.cuda:
             self.device = torch.device("cuda")
             torch.cuda.manual_seed_all(self.config.seed)
-            self.model = self.model.to(self.device)
-            self.loss = self.loss.to(self.device)
             print("Operation will be on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
@@ -59,6 +57,8 @@ class CondenseNetAgent(BaseAgent):
             torch.manual_seed(self.config.seed)
             print("Operation will be on *****CPU***** ")
 
+        self.model = self.model.to(self.device)
+        self.loss = self.loss.to(self.device)
         # Model Loading from the latest checkpoint if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
         # Tensorboard Writer

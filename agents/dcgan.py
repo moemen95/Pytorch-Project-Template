@@ -66,10 +66,6 @@ class DCGANAgent(BaseAgent):
         if self.cuda:
             self.device = torch.device("cuda")
             torch.cuda.manual_seed_all(self.manual_seed)
-            self.netG = self.netG.to(self.device)
-            self.netD = self.netD.to(self.device)
-            self.loss = self.loss.to(self.device)
-            self.fixed_noise = self.fixed_noise.to(self.device)
             print("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
@@ -77,6 +73,10 @@ class DCGANAgent(BaseAgent):
             torch.manual_seed(self.manual_seed)
             print("Program will run on *****CPU***** ")
 
+        self.netG = self.netG.to(self.device)
+        self.netD = self.netD.to(self.device)
+        self.loss = self.loss.to(self.device)
+        self.fixed_noise = self.fixed_noise.to(self.device)
         # Model Loading from the latest checkpoint if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
 
