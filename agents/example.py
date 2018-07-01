@@ -52,13 +52,11 @@ class ExampleAgent(BaseAgent):
         # set the manual seed for torch
         self.manual_seed = self.config.seed
         if self.cuda:
-            print("Program will run on *****GPU-CUDA***** ")
             torch.cuda.manual_seed_all(self.manual_seed)
-            print_cuda_statistics()
-
             self.model = self.model.cuda()
             self.loss = self.loss.cuda()
-
+            print("Program will run on *****GPU-CUDA***** ")
+            print_cuda_statistics()
         else:
             print("Program will run on *****CPU*****\n")
 

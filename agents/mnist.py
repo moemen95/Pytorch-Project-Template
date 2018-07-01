@@ -58,15 +58,13 @@ class MnistAgent(BaseAgent):
         # set the manual seed for torch
         self.manual_seed = self.config.seed
         if self.cuda:
-            print("Program will run on *****GPU-CUDA***** ")
             torch.cuda.manual_seed(self.manual_seed)
-            print_cuda_statistics()
-
             self.device = torch.device("cuda")
-
             self.model = self.model.to(self.device)
             self.loss = self.loss.to(self.device)
 
+            print("Program will run on *****GPU-CUDA***** ")
+            print_cuda_statistics()
         else:
             self.device = torch.device("cpu")
             torch.manual_seed(self.manual_seed)

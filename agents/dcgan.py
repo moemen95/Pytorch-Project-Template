@@ -1,3 +1,6 @@
+"""
+Main Agent for DCGAN
+"""
 import numpy as np
 
 from tqdm import tqdm
@@ -28,7 +31,6 @@ class DCGANAgent(BaseAgent):
         # define models ( generator and discriminator)
         self.netG = Generator(self.config)
         self.netD = Discriminator(self.config)
-
         # define dataloader
         self.dataloader = CelebADataLoader(self.config)
 
@@ -61,16 +63,14 @@ class DCGANAgent(BaseAgent):
         print ("seed: " , self.manual_seed)
         random.seed(self.manual_seed)
         if self.cuda:
-            print("Program will run on *****GPU-CUDA***** ")
-            print_cuda_statistics()
             self.device = torch.device("cuda")
-
             torch.cuda.manual_seed_all(self.manual_seed)
             self.netG = self.netG.to(self.device)
             self.netD = self.netD.to(self.device)
             self.loss = self.loss.to(self.device)
             self.fixed_noise = self.fixed_noise.to(self.device)
-
+            print("Program will run on *****GPU-CUDA***** ")
+            print_cuda_statistics()
         else:
             self.device = torch.device("cpu")
             torch.manual_seed(self.manual_seed)
