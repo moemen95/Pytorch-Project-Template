@@ -1,5 +1,5 @@
 """
-Cross Entropy 2D for CondenseNet Model
+Cross Entropy 2D for CondenseNet
 """
 
 import torch

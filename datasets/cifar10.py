@@ -1,3 +1,6 @@
+"""
+Cifar10 Dataloader implementation, used in CondenseNet
+"""
 import numpy as np
 
 import torch

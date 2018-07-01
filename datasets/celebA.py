@@ -1,3 +1,6 @@
+"""
+CelebA Dataloader implementation, used in DCGAN
+"""
 import numpy as np
 
 import imageio

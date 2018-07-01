@@ -1,5 +1,5 @@
 """
-Mnist Data loader, as mentioned in the tutorial
+Mnist Data loader, as given in Mnist tutorial
 """
 import imageio
 import torch

@@ -13,7 +13,7 @@ from torch.autograd import Variable
 
 from agents.base import BaseAgent
 from graphs.models.condensenet import CondenseNet
-from graphs.losses.ce_2d import CrossEntropyLoss2d
+from graphs.losses.cross_entropy import CrossEntropyLoss2d
 from datasets.cifar10 import Cifar10DataLoader
 
 from tensorboardX import SummaryWriter
@@ -22,6 +22,7 @@ from utils.misc import print_cuda_statistics
 from utils.train_utils import adjust_learning_rate
 
 cudnn.benchmark = True
+
 
 class CondenseNetAgent(BaseAgent):
     def __init__(self, config):

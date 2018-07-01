@@ -25,6 +25,7 @@ from utils.misc import print_cuda_statistics
 
 cudnn.benchmark = True
 
+
 class DCGANAgent(BaseAgent):
 
     def __init__(self, config):
