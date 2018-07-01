@@ -13,13 +13,14 @@ from torch.backends import cudnn
 from torch.autograd import Variable
 import torchvision.utils as vutils
 
+from agents.base import BaseAgent
 from graphs.models.dcgan_generator import Generator
 from graphs.models.dcgan_discriminator import Discriminator
 from graphs.losses.bce import BinaryCrossEntropy
 from datasets.celebA import CelebADataLoader
 
 from tensorboardX import SummaryWriter
-from utils.metrics import AverageMeter, AverageMeterList, evaluate
+from utils.metrics import AverageMeter, AverageMeterList
 from utils.misc import print_cuda_statistics
 
 cudnn.benchmark = True

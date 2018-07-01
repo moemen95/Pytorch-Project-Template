@@ -3,7 +3,7 @@ Definitions for custom blocks for condensenet model
 """
 import torch
 import torch.nn as nn
-from graphs.models.layers import LearnedGroupConv
+from graphs.models.custom_layers.learnedgroupconv import LearnedGroupConv
 
 class DenseBlock(nn.Sequential):
     def __init__(self, num_layers, in_channels, growth_rate, config):

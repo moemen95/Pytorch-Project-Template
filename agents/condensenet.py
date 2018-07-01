@@ -11,12 +11,13 @@ from torch import nn
 from torch.backends import cudnn
 from torch.autograd import Variable
 
+from agents.base import BaseAgent
 from graphs.models.condensenet import CondenseNet
 from graphs.losses.ce_2d import CrossEntropyLoss2d
 from datasets.cifar10 import Cifar10DataLoader
 
 from tensorboardX import SummaryWriter
-from utils.metrics import AverageMeter, AverageMeterList, evaluate, cls_accuracy
+from utils.metrics import AverageMeter, AverageMeterList, IOU, cls_accuracy
 from utils.misc import print_cuda_statistics
 from utils.train_utils import adjust_learning_rate
 
