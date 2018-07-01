@@ -1,5 +1,5 @@
 {
-  "exp_name": "exp_13",
+  "exp_name": "dcgan_exp_0",
   "agent": "DCGANAgent",
   "mode": "train",
 
