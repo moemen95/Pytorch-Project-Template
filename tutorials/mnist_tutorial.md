@@ -12,7 +12,7 @@ We rename the agent and dataloader to the ones for Mnist. As we go, we will add 
 
 We start by the model definition, defined here in the example
 
-```
+```python
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -33,7 +33,7 @@ class Net(nn.Module):
 ```
 We will move this model definition into the folder '/graphs/models' with the name mnist.py. The class is renamed into 'Mnist'.
 A slight change will be adding the weight initializer at the end of the model constructor, after importing.
-```
+```python
   from ..weights_initializer import weights_init
 
   self.apply(weights_init)
@@ -49,7 +49,7 @@ Since we don't define our own loss function, we can use the same one from Pytorc
 ### 3. DataLoader
 We duplicate the example file in we have in the folder '/datasets' and rename it into [mnist.py](https://github.com/moemen95/PyTorch-Project-Template/blob/master/datasets/mnist.py). The class is renamed into 'MnistDataLoader'.
 These is the main part concerned with data loading.
-```
+```python
     kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=True, download=True,
@@ -67,7 +67,7 @@ These is the main part concerned with data loading.
 ```
 In /datasets/mnist.py, we added a new mode named 'download' as we are downloading data inside the loader and not saved inside '/data'
 In the configurations, we need to edit the following fields from
-```
+```json
   "data_loader": "ExampleDataLoader",
   "data_loader_workers": 1,
   "pin_memory": true,
@@ -77,7 +77,7 @@ In the configurations, we need to edit the following fields from
   "data_folder": "./data/example"
 ```
 to:
-```
+```json
   "data_loader": "MnistDataLoader",
   "data_loader_workers": 2,
   "pin_memory": true,
@@ -95,38 +95,38 @@ The parameters used are now passed from within ``` self.config ```
 This is where all the action take places. We duplicate the example file in we have in the folder '/agents' and rename it into [mnist.py](https://github.com/moemen95/PyTorch-Project-Template/blob/master/agents/mnist.py).
 #### The agent init:
 - We define our model, imported from '/graphs/models/mnist.py'. Don't forget to the import statement at the beginning of the file
-```
+```python
 from graphs.models.mnist import Mnist
 
 self.model = Mnist(self.config)
 ```
 - We define our dataloader, imported from '/datasets/MnistDataLoader.py'. Don't forget to the import statement at the beginning of the file
 
-```
+```python
 from datasets.mnist import MnistDataLoader
 
 self.data_loader = MnistDataLoader(config=config)
 ```
 - We define the optimizer,
-```
+```python
   self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.learning_rate, momentum=self.config.momentum)
 
 ```
 And edit these fields in the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json)
-```
+```json
   "learning_rate": 0.01,
   "momentum": 0.5,
 ```
 There is nothing else to be modified in the constructor.
 #### Train function:
 In our reference example, we have this code inside the main function that should move to the function 'train'
-```
+```python
     for epoch in range(1, args.epochs + 1):
         train(args, model, device, train_loader, optimizer, epoch)
         test(args, model, device, test_loader)
 ```
 We don't need to pass all these parameters, so it will be changed into
-```
+```python
     for epoch in range(1, self.config.max_epoch + 1):
         self.train_one_epoch()
         self.validate()
@@ -137,7 +137,7 @@ Don't forget to update the max_epoch field in the config file with that value gi
 #### Train One epoch function:
 In the reference example, we have this code responsible for model training inside the function 'train'
 
-```
+```python
 def train(args, model, device, train_loader, optimizer, epoch):
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
@@ -163,7 +163,7 @@ We will copy this into 'train_one_epoch' with no arguments to be passed and some
 
 In the reference example, we have this code responsible for model testing inside the function 'test'
 
-```
+```python
 def test(args, model, device, test_loader):
     model.eval()
     test_loss = 0
