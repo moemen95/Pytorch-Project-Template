@@ -1,5 +1,5 @@
 # Mnist Tutorial
-This is detailed tutorial on how to adapt your Pytorch code into our project structure.
+This is a detailed tutorial on how to adapt your Pytorch code into our project structure.
 
 We will walk through a Pytorch [basic model on Mnist](https://github.com/pytorch/examples/blob/master/mnist/main.py) and transform it into our template format.
 

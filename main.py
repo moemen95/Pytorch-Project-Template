@@ -1,5 +1,5 @@
 """
-This Template Project is created and authored by Mo'men & Hager
+__author__ = "Hager Rady and Mo'men AbdelRazek"
 
 Main
 -Capture the config file
