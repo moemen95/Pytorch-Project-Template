@@ -8,10 +8,10 @@ This is a joint work between [Hager Rady](https://github.com/hagerrady13/) and [
 
 ### Why this template?
 
-We are proposing a baseline for any PyTorch project to give you a quick start, where you will get the time to focus in your model's implementation and we will handle the rest. The novelty of this approach lies in:
+We are proposing a baseline for any PyTorch project to give you a quick start, where you will get the time to focus on your model's implementation and we will handle the rest. The novelty of this approach lies in:
 - Providing a scalable project structure, with a template file for each.
-- Introducing the usage a config file that handle all the hyper-parameters related to a certain problem.
-- Embedding examples from various problems inside the template.
+- Introducing the usage of a config file that handle all the hyper-parameters related to a certain problem.
+- Embedding examples from various problems inside the template, where you can run any of them independently with a **single change** in the config file name.
 - Tutorials to get you started.
 
 ### Tutorials:
@@ -21,9 +21,9 @@ We are providing a series of tutorials to get your started
 * [Mnist tutorial](https://github.com/moemen95/PyTorch-Project-Template/blob/master/tutorials/mnist_tutorial.md): Here we take an already implemented NN model on Mnist and adapt it to our template structure.
 
 ### Contribution:
-* We are welcoming any contribution from the community that may add value to the template. 
-* We aim that this template can be a central place for different examples of the well-known PyTorch Deep learning models. 
-* We are also welcoming any proposed changes about the design pattern used in this project.
+* We aim that this template can be a central place for different examples of the well-known PyTorch Deep learning models.
+* We are welcoming any contribution from the community that will make this come true. We urge people to add their PyTorch models into the template.
+* We are also welcoming any proposed changes about the class design pattern used in this project.
 
 ### Template Class Diagram:
 

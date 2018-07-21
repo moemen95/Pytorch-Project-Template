@@ -40,7 +40,7 @@ class MnistAgent(BaseAgent):
         # define loss
         self.loss = nn.NLLLoss()
 
-        # define optimizers for both generator and discriminator
+        # define optimizer
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.learning_rate, momentum=self.config.momentum)
 
         # initialize counter

@@ -82,8 +82,31 @@ def finalize(self):
 ```
 
 #### Dataloader:
-Dataloader is responsible fo your dataset utilities and returns a PyTorch dataloader for both training and validation splits. You can specify the data loading mode in the config as numpy, imgs, etc.
-
+Dataloader is responsible for your dataset utilities and returns a PyTorch dataloader for both training and validation splits. You can specify the data loading mode in the config as numpy, imgs, etc, as seen below:
+```json
+    if config.data_mode == "numpy_train":
+            normalize = v_transforms.Normalize(mean=[0.4914, 0.4824, 0.4467],
+                                         std=[0.2471, 0.2435, 0.2616])
+    
+        train_set = v_datasets.CIFAR10('./data', train=True, download=True,
+                                     transform=v_transforms.Compose([
+                                         v_transforms.RandomCrop(32, padding=4),
+                                         v_transforms.RandomHorizontalFlip(),
+                                         v_transforms.ToTensor(),
+                                         normalize,
+                                     ]))
+        valid_set = v_datasets.CIFAR10('./data', train=False,
+                                   transform=v_transforms.Compose([
+                                       v_transforms.ToTensor(),
+                                       normalize,
+                                   ]))
+    
+        self.train_loader = DataLoader(train_set, batch_size=self.config.batch_size, shuffle=True)
+        self.valid_loader = DataLoader(valid_set, batch_size=self.config.batch_size, shuffle=False)
+    
+        self.train_iterations = len(self.train_loader)
+        self.valid_iterations = len(self.valid_loader)
+```
 #### Model:
 This is where you define your main model, as shown in the example below:
  
@@ -118,9 +141,9 @@ Should you have any new parameters that you think can be added to the configurat
   "newKey" : "newValue"
 }
 ```
-This will be accessed inside the code as 
+This can be accessed inside the code as 
 ```python 
-parameter_key = config.newkey
+parameter_value = config.newkey
 ```
 
 ### 2. Identify your changes:
@@ -128,12 +151,16 @@ If this is one of the categories we covered, you may reuse part of the codes in 
 If your problem was not introduced before in the template, you will use the ```example.py``` files for your reference.
 
 Before editing any file, you need to identify the changes you need to make to any of the blocks mentioned above.
-- **Agent**: Duplicate the given agent example and start defining the main functions as needed. Feel free to reuse any of the codes given in the examples.
-- **Dataloader**: If you are using any of the datasets mentioned in the template, use the same dataloader; if not, use the same logic and change whenever necessary.
-- **Model**: Define your model by writing the model init and forward function, using the same logic we used here. If you need to define any custom layers or blocks, add them in the custom_layers folder.
-- **Config**: Duplicate the given example for the config file with a new name and adapt its values; add or remove config fields whenever necessary.
+- **Agent**: 
+    Duplicate the given agent example and start defining the main functions as needed. Feel free to reuse any of the codes given in the examples.
+- **Dataloader**: 
+    If you are using any of the datasets mentioned in the template, use the same dataloader; if not, use the same logic and change whenever necessary.
+- **Model**: 
+    Define your model by writing the model init and forward function, using the same logic we used here. If you need to define any custom layers or blocks, add them in the custom_layers folder.
+- **Config**: 
+    Duplicate the given example for the config file with a new name and adapt its values; add or remove config fields whenever necessary.
 
 ### 3. Run your desired configs:
 After you make your changes to the main blocks, you will find a bash script that runs the main file. You need to change nothing here but the config file name as an argument upon running. 
 
-This will enable you to have more than one model with all its variations inside the same project, where you can run from the same file given different configs.
+This will enable you to have more than one model with all its variations inside the same project, where you can run any from the same file given different configs.
