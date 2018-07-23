@@ -231,12 +231,12 @@ class DQNAgent(BaseAgent):
             if curr_loss is not None:
                 if self.cuda:
                     curr_loss = curr_loss.cpu()
-                self.summary_writer.add_scalar("Temporal Difference Loss", curr_loss.detach().numpy(), self.current_iteration)
+                self.summary_writer.add_scalar("Temporal_Difference_Loss", curr_loss.detach().numpy(), self.current_iteration)
             # check if done
             if done:
                 break
 
-        self.summary_writer.add_scalar("Training Episode Duration", episode_duration, self.current_episode)
+        self.summary_writer.add_scalar("Training_Episode_Duration", episode_duration, self.current_episode)
 
     def validate(self):
         pass
