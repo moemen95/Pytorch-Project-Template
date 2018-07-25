@@ -26,6 +26,7 @@ We are providing a series of tutorials to get your started
 * We are also welcoming any proposed changes about the class design pattern used in this project.
 
 ### Template Class Diagram:
+![alt text](utils/assets/class_diagram.png)
 
 ### Repo Structure:
 ```
