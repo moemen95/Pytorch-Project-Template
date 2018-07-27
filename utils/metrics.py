@@ -4,16 +4,12 @@ This file will contain the metrics of the framework
 import numpy as np
 
 
-class IOU:
+class IOUMetric:
     """
     Class to calculate mean-iou using fast_hist method
     """
 
     def __init__(self, num_classes):
-        """
-        number of classes in segmentation
-        :param num_classes:
-        """
         self.num_classes = num_classes
         self.hist = np.zeros((num_classes, num_classes))
 
@@ -25,20 +21,10 @@ class IOU:
         return hist
 
     def add_batch(self, predictions, gts):
-        """
-        it calculate a batch in every iteration in training or testing
-        :param predictions:
-        :param gts:
-        :return:
-        """
         for lp, lt in zip(predictions, gts):
             self.hist += self._fast_hist(lp.flatten(), lt.flatten())
 
     def evaluate(self):
-        """
-        It returns all useful calculations from Confusion matrix
-        :return: acc, acc_cls, iu, mean_iu, fwavacc
-        """
         acc = np.diag(self.hist).sum() / self.hist.sum()
         acc_cls = np.diag(self.hist) / self.hist.sum(axis=1)
         acc_cls = np.nanmean(acc_cls)
@@ -107,6 +93,7 @@ class AverageMeterList:
     @property
     def val(self):
         return self.avg
+
 
 def cls_accuracy(output, target, topk=(1,)):
     maxk = max(topk)

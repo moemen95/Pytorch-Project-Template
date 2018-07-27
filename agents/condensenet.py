@@ -17,7 +17,7 @@ from graphs.losses.cross_entropy import CrossEntropyLoss2d
 from datasets.cifar10 import Cifar10DataLoader
 
 from tensorboardX import SummaryWriter
-from utils.metrics import AverageMeter, AverageMeterList, IOU, cls_accuracy
+from utils.metrics import AverageMeter, AverageMeterList, cls_accuracy
 from utils.misc import print_cuda_statistics
 from utils.train_utils import adjust_learning_rate
 
@@ -150,10 +150,12 @@ class CondenseNetAgent(BaseAgent):
                 x, y = x.cuda(async=self.config.async_loading), y.cuda(async=self.config.async_loading)
 
             # current iteration over total iterations
-            progress = float(self.current_epoch * self.data_loader.train_iterations + current_batch) / (self.config.max_epoch * self.data_loader.train_iterations)
-            #progress = float(self.current_iteration) / (self.config.max_epoch * self.data_loader.train_iterations)
+            progress = float(self.current_epoch * self.data_loader.train_iterations + current_batch) / (
+                    self.config.max_epoch * self.data_loader.train_iterations)
+            # progress = float(self.current_iteration) / (self.config.max_epoch * self.data_loader.train_iterations)
             x, y = Variable(x), Variable(y)
-            lr = adjust_learning_rate(self.optimizer, self.current_epoch, self.config, batch=current_batch, nBatch= self.data_loader.train_iterations)
+            lr = adjust_learning_rate(self.optimizer, self.current_epoch, self.config, batch=current_batch,
+                                      nBatch=self.data_loader.train_iterations)
             # model
             pred = self.model(x, progress)
             # loss
@@ -165,7 +167,7 @@ class CondenseNetAgent(BaseAgent):
             cur_loss.backward()
             self.optimizer.step()
 
-            top1, top5 = cls_accuracy(pred.data, y.data, topk=(1,5))
+            top1, top5 = cls_accuracy(pred.data, y.data, topk=(1, 5))
 
             epoch_loss.update(cur_loss.item())
             top1_acc.update(top1.item(), x.size(0))
@@ -208,7 +210,7 @@ class CondenseNetAgent(BaseAgent):
             if np.isnan(float(cur_loss.item())):
                 raise ValueError('Loss is nan during validation...')
 
-            top1, top5 = cls_accuracy(pred.data, y.data, topk=(1,5))
+            top1, top5 = cls_accuracy(pred.data, y.data, topk=(1, 5))
             epoch_loss.update(cur_loss.item())
             top1_acc.update(top1.item(), x.size(0))
             top5_acc.update(top5.item(), x.size(0))

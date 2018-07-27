@@ -7,6 +7,7 @@ import numpy as np
 import graphs
 import math
 
+
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
@@ -14,6 +15,20 @@ def weights_init(m):
     elif classname.find('BatchNorm') != -1:
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
+
+
+def weights_init_normal(m):
+    """
+    Initialize the weights of Convolution2D and BatchNorm2D with normal.
+    :param m:
+    :return:
+    """
+    if isinstance(m, nn.Conv2d):
+        m.weight.data.normal_(0.0, 0.02)
+    elif isinstance(m, nn.BatchNorm2d):
+        m.weight.data.normal_(1.0, 0.02)
+        m.bias.data.fill_(0)
+
 
 def init_model_weights(m):
     ### initialize

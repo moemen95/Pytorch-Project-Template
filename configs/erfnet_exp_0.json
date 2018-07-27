@@ -8,6 +8,7 @@
 
   "num_classes": 21,
   "ignore_index": 255,
+  "class_weights": "./pretrained_weights/voc2012_256_class_weights.npy",
 
   "img_size": 256,
   "input_channels": 3,

@@ -10,7 +10,6 @@ from torch.autograd import Variable
 from graphs.models.erfnet import ERF
 from graphs.models.erfnet_imagenet import ERFNet
 from datasets.voc2012 import VOCDataLoader
-from graphs.losses.loss import CrossEntropyLoss2d
 
 from torch.optim import lr_scheduler
 
@@ -46,7 +45,10 @@ class ERFNetAgent:
         # Create an instance from the data loader
         self.data_loader = VOCDataLoader(self.config)
         # Create instance from the loss
-        self.loss = torch.nn.CrossEntropyLoss(ignore_index=255, weight=None, size_average=True, reduce=True)
+        class_weights = np.load(self.config.class_weights)
+        self.loss = torch.nn.CrossEntropyLoss(ignore_index=255,
+                                              weight=torch.from_numpy(class_weights.astype(np.float32)),
+                                              size_average=True, reduce=True)
         # Create instance from the optimizer
         self.optimizer = torch.optim.Adam(self.model.parameters(),
                                           lr=self.config.learning_rate,
