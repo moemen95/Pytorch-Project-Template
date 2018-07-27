@@ -96,21 +96,29 @@ This is to ensure that our proposed project structure is compatible with differe
 
 ### Requirements:
 ```
-Pytorch: 0.4.0
-torchvision: 0.2.1
-tensorboardX: 1.2
-gym: 0.10.5
-tqdm: 4.23.3
-easydict: 1.7
+easydict==1.7
+graphviz==0.8.4
+gym==0.10.5
+imageio==2.3.0
+matplotlib==2.2.2
+numpy==1.14.5
+Pillow==5.2.0
+scikit-image==0.14.0
+scikit-learn==0.19.1
+scipy==1.1.0
+tensorboardX==1.2
+torch==0.4.0
+torchvision==0.2.1
+tqdm==4.23.4
 ```
 
 ### To-Do:
 
 We are planning to add more examples into our template to include various categories of problems. Next we are going to include the following:
 
-* MobilenetV2
-* visual-interaction-networks-pytorch
-* variational-Autoencoder-pytorch
+* [MobilenetV2](https://github.com/MG2033/MobileNet-V2)
+* [visual-interaction-networks-pytorch](https://github.com/MrGemy95/visual-interaction-networks-pytorch)
+* [variational-Autoencoder-pytorch](https://github.com/pytorch/examples/tree/master/vae)
 
 ### License:
 This project is licensed under MIT License - see the LICENSE file for details
