@@ -29,7 +29,7 @@ cudnn.benchmark = True
 class DCGANAgent(BaseAgent):
 
     def __init__(self, config):
-        self.config = config
+        super().__init__(config)
         # define models ( generator and discriminator)
         self.netG = Generator(self.config)
         self.netD = Discriminator(self.config)
@@ -55,24 +55,24 @@ class DCGANAgent(BaseAgent):
         # set cuda flag
         self.is_cuda = torch.cuda.is_available()
         if self.is_cuda and not self.config.cuda:
-            print("WARNING: You have a CUDA device, so you should probably enable CUDA")
+            self.logger.info("WARNING: You have a CUDA device, so you should probably enable CUDA")
 
         self.cuda = self.is_cuda & self.config.cuda
         # set the manual seed for torch
         #if not self.config.seed:
         self.manual_seed = random.randint(1, 10000)
         #self.manual_seed = self.config.seed
-        print ("seed: " , self.manual_seed)
+        self.logger.info ("seed: " , self.manual_seed)
         random.seed(self.manual_seed)
         if self.cuda:
             self.device = torch.device("cuda")
             torch.cuda.manual_seed_all(self.manual_seed)
-            print("Program will run on *****GPU-CUDA***** ")
+            self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
             self.device = torch.device("cpu")
             torch.manual_seed(self.manual_seed)
-            print("Program will run on *****CPU***** ")
+            self.logger.info("Program will run on *****CPU***** ")
 
         self.netG = self.netG.to(self.device)
         self.netD = self.netD.to(self.device)
@@ -87,7 +87,7 @@ class DCGANAgent(BaseAgent):
     def load_checkpoint(self, file_name):
         filename = self.config.checkpoint_dir + file_name
         try:
-            print("Loading checkpoint '{}'".format(filename))
+            self.logger.info("Loading checkpoint '{}'".format(filename))
             checkpoint = torch.load(filename)
 
             self.current_epoch = checkpoint['epoch']
@@ -99,11 +99,11 @@ class DCGANAgent(BaseAgent):
             self.fixed_noise = checkpoint['fixed_noise']
             self.manual_seed = checkpoint['manual_seed']
 
-            print("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
+            self.logger.info("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
                   .format(self.config.checkpoint_dir, checkpoint['epoch'], checkpoint['iteration']))
         except OSError as e:
-            print("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
-            print("**First time to train**")
+            self.logger.info("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
+            self.logger.info("**First time to train**")
 
     def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best = 0):
         state = {
@@ -132,7 +132,7 @@ class DCGANAgent(BaseAgent):
             self.train()
 
         except KeyboardInterrupt:
-            print("You have entered CTRL+C.. Wait to finalize")
+            self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
     def train(self):
         for epoch in range(self.current_epoch, self.config.max_epoch):
@@ -213,7 +213,7 @@ class DCGANAgent(BaseAgent):
 
         tqdm_batch.close()
 
-        print("Training at epoch-" + str(self.current_epoch) + " | " + "Discriminator loss: " + str(
+        self.logger.info("Training at epoch-" + str(self.current_epoch) + " | " + "Discriminator loss: " + str(
             epoch_lossD.val) + " - Generator Loss-: " + str(epoch_lossG.val))
 
     def validate(self):
@@ -224,7 +224,7 @@ class DCGANAgent(BaseAgent):
         Finalize all the operations of the 2 Main classes of the process the operator and the data loader
         :return:
         """
-        print("Please wait while finalizing the operation.. Thank you")
+        self.logger.info("Please wait while finalizing the operation.. Thank you")
         self.save_checkpoint()
         self.summary_writer.export_scalars_to_json("{}all_scalars.json".format(self.config.summary_dir))
         self.summary_writer.close()

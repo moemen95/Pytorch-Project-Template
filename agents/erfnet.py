@@ -17,23 +17,20 @@ from tensorboardX import SummaryWriter
 from utils.metrics import AverageMeter, IOUMetric
 from utils.misc import print_cuda_statistics
 
+from agents.base import BaseAgent
+
 cudnn.benchmark = True
 
-"""
-TODO: 
-Add Weighted loss
-"""
 
-
-class ERFNetAgent:
+class ERFNetAgent(BaseAgent):
     """
     This class will be responsible for handling the whole process of our architecture.
     """
 
     def __init__(self, config):
-        self.config = config
+        super().__init__(config)
         # Create an instance from the Model
-        print("Loading encoder pretrained in imagenet...")
+        self.logger.info("Loading encoder pretrained in imagenet...")
         if self.config.pretrained_encoder:
             pretrained_enc = torch.nn.DataParallel(ERFNet(self.config.imagenet_nclasses)).cuda()
             pretrained_enc.load_state_dict(torch.load(self.config.pretrained_model_path)['state_dict'])
@@ -71,13 +68,13 @@ class ERFNetAgent:
         if self.cuda:
             torch.cuda.manual_seed_all(self.config.seed)
             self.device = torch.device("cuda")
-            print("Operation will be on *****GPU-CUDA***** ")
+            self.logger.info("Operation will be on *****GPU-CUDA***** ")
             print_cuda_statistics()
 
         else:
             self.device = torch.device("cpu")
             torch.manual_seed(self.config.seed)
-            print("Operation will be on *****CPU***** ")
+            self.logger.info("Operation will be on *****CPU***** ")
 
         self.model = self.model.to(self.device)
         self.loss = self.loss.to(self.device)
@@ -115,7 +112,7 @@ class ERFNetAgent:
     def load_checkpoint(self, filename):
         filename = self.config.checkpoint_dir + filename
         try:
-            print("Loading checkpoint '{}'".format(filename))
+            self.logger.info("Loading checkpoint '{}'".format(filename))
             checkpoint = torch.load(filename)
 
             self.current_epoch = checkpoint['epoch']
@@ -123,11 +120,11 @@ class ERFNetAgent:
             self.model.load_state_dict(checkpoint['state_dict'])
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
-            print("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
+            self.logger.info("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
                   .format(self.config.checkpoint_dir, checkpoint['epoch'], checkpoint['iteration']))
         except OSError as e:
-            print("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
-            print("**First time to train**")
+            self.logger.info("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
+            self.logger.info("**First time to train**")
 
     def run(self):
         """
@@ -142,7 +139,7 @@ class ERFNetAgent:
                 self.train()
 
         except KeyboardInterrupt:
-            print("You have entered CTRL+C.. Wait to finalize")
+            self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
     def train(self):
         """

@@ -24,7 +24,7 @@ cudnn.benchmark = True
 class DQNAgent(BaseAgent):
 
     def __init__(self, config):
-        self.config = config
+        super().__init__(config)
         # define models (policy and target)
         self.policy_model = DQN(self.config)
         self.target_model = DQN(self.config)
@@ -47,17 +47,17 @@ class DQNAgent(BaseAgent):
         # set cuda flag
         self.is_cuda = torch.cuda.is_available()
         if self.is_cuda and not self.config.cuda:
-            print("WARNING: You have a CUDA device, so you should probably enable CUDA")
+            self.logger.info("WARNING: You have a CUDA device, so you should probably enable CUDA")
 
         self.cuda = self.is_cuda & self.config.cuda
 
         if self.cuda:
             self.device = torch.device("cuda")
-            print("Program will run on *****GPU-CUDA***** ")
+            self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
             self.device = torch.device("cpu")
-            print("Program will run on *****CPU***** ")
+            self.logger.info("Program will run on *****CPU***** ")
 
         self.policy_model = self.policy_model.to(self.device)
         self.target_model = self.target_model.to(self.device)
@@ -72,7 +72,7 @@ class DQNAgent(BaseAgent):
     def load_checkpoint(self, file_name):
         filename = self.config.checkpoint_dir + file_name
         try:
-            print("Loading checkpoint '{}'".format(filename))
+            self.logger.info("Loading checkpoint '{}'".format(filename))
             checkpoint = torch.load(filename)
 
             self.current_episode = checkpoint['episode']
@@ -80,11 +80,11 @@ class DQNAgent(BaseAgent):
             self.policy_model.load_state_dict(checkpoint['state_dict'])
             self.optim.load_state_dict(checkpoint['optimizer'])
 
-            print("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
+            self.logger.info("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
                   .format(self.config.checkpoint_dir, checkpoint['episode'], checkpoint['iteration']))
         except OSError as e:
-            print("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
-            print("**First time to train**")
+            self.logger.info("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
+            self.logger.info("**First time to train**")
 
     def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=0):
         state = {
@@ -109,7 +109,7 @@ class DQNAgent(BaseAgent):
             self.train()
 
         except KeyboardInterrupt:
-            print("You have entered CTRL+C.. Wait to finalize")
+            self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
     def select_action(self, state):
         """
@@ -246,7 +246,7 @@ class DQNAgent(BaseAgent):
         Finalize all the operations of the 2 Main classes of the process the operator and the data loader
         :return:
         """
-        print("Please wait while finalizing the operation.. Thank you")
+        self.logger.info("Please wait while finalizing the operation.. Thank you")
         self.save_checkpoint()
         self.summary_writer.export_scalars_to_json("{}all_scalars.json".format(self.config.summary_dir))
         self.summary_writer.close()

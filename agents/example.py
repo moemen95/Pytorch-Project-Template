@@ -45,7 +45,7 @@ class ExampleAgent(BaseAgent):
         # set cuda flag
         self.is_cuda = torch.cuda.is_available()
         if self.is_cuda and not self.config.cuda:
-            print("WARNING: You have a CUDA device, so you should probably enable CUDA")
+            self.logger.info("WARNING: You have a CUDA device, so you should probably enable CUDA")
 
         self.cuda = self.is_cuda & self.config.cuda
 
@@ -55,10 +55,10 @@ class ExampleAgent(BaseAgent):
             torch.cuda.manual_seed_all(self.manual_seed)
             self.model = self.model.cuda()
             self.loss = self.loss.cuda()
-            print("Program will run on *****GPU-CUDA***** ")
+            self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
-            print("Program will run on *****CPU*****\n")
+            self.logger.info("Program will run on *****CPU*****\n")
 
         # Model Loading from the latest checkpoint if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
@@ -91,7 +91,7 @@ class ExampleAgent(BaseAgent):
             self.train()
 
         except KeyboardInterrupt:
-            print("You have entered CTRL+C.. Wait to finalize")
+            self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
     def train(self):
         """

@@ -51,7 +51,7 @@ class MnistAgent(BaseAgent):
         # set cuda flag
         self.is_cuda = torch.cuda.is_available()
         if self.is_cuda and not self.config.cuda:
-            print("WARNING: You have a CUDA device, so you should probably enable CUDA")
+            self.logger.info("WARNING: You have a CUDA device, so you should probably enable CUDA")
 
         self.cuda = self.is_cuda & self.config.cuda
 
@@ -63,12 +63,12 @@ class MnistAgent(BaseAgent):
             self.model = self.model.to(self.device)
             self.loss = self.loss.to(self.device)
 
-            print("Program will run on *****GPU-CUDA***** ")
+            self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
             self.device = torch.device("cpu")
             torch.manual_seed(self.manual_seed)
-            print("Program will run on *****CPU*****\n")
+            self.logger.info("Program will run on *****CPU*****\n")
 
         # Model Loading from the latest checkpoint if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
@@ -101,7 +101,7 @@ class MnistAgent(BaseAgent):
             self.train()
 
         except KeyboardInterrupt:
-            print("You have entered CTRL+C.. Wait to finalize")
+            self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
     def train(self):
         """
@@ -128,7 +128,7 @@ class MnistAgent(BaseAgent):
             loss.backward()
             self.optimizer.step()
             if batch_idx % self.config.log_interval == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     self.current_epoch, batch_idx * len(data), len(self.data_loader.train_loader.dataset),
                            100. * batch_idx / len(self.data_loader.train_loader), loss.item()))
             self.current_iteration += 1
@@ -150,7 +150,7 @@ class MnistAgent(BaseAgent):
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
         test_loss /= len(self.data_loader.test_loader.dataset)
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        self.logger.info('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             test_loss, correct, len(self.data_loader.test_loader.dataset),
             100. * correct / len(self.data_loader.test_loader.dataset)))
     def finalize(self):

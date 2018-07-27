@@ -26,7 +26,7 @@ cudnn.benchmark = True
 
 class CondenseNetAgent(BaseAgent):
     def __init__(self, config):
-        self.config = config
+        super().__init__(config)
         # Create an instance from the Model
         self.model = CondenseNet(self.config)
         # Create an instance from the data loader
@@ -51,12 +51,12 @@ class CondenseNetAgent(BaseAgent):
         if self.cuda:
             self.device = torch.device("cuda")
             torch.cuda.manual_seed_all(self.config.seed)
-            print("Operation will be on *****GPU-CUDA***** ")
+            self.logger.info("Operation will be on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:
             self.device = torch.device("cpu")
             torch.manual_seed(self.config.seed)
-            print("Operation will be on *****CPU***** ")
+            self.logger.info("Operation will be on *****CPU***** ")
 
         self.model = self.model.to(self.device)
         self.loss = self.loss.to(self.device)
@@ -88,7 +88,7 @@ class CondenseNetAgent(BaseAgent):
     def load_checkpoint(self, filename):
         filename = self.config.checkpoint_dir + filename
         try:
-            print("Loading checkpoint '{}'".format(filename))
+            self.logger.info("Loading checkpoint '{}'".format(filename))
             checkpoint = torch.load(filename)
 
             self.current_epoch = checkpoint['epoch']
@@ -96,11 +96,11 @@ class CondenseNetAgent(BaseAgent):
             self.model.load_state_dict(checkpoint['state_dict'])
             self.optimizer.load_state_dict(checkpoint['optimizer'])
 
-            print("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
-                  .format(self.config.checkpoint_dir, checkpoint['epoch'], checkpoint['iteration']))
+            self.logger.info("Checkpoint loaded successfully from '{}' at (epoch {}) at (iteration {})\n"
+                             .format(self.config.checkpoint_dir, checkpoint['epoch'], checkpoint['iteration']))
         except OSError as e:
-            print("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
-            print("**First time to train**")
+            self.logger.info("No checkpoint exists from '{}'. Skipping...".format(self.config.checkpoint_dir))
+            self.logger.info("**First time to train**")
 
     def run(self):
         """
@@ -114,7 +114,7 @@ class CondenseNetAgent(BaseAgent):
                 self.train()
 
         except KeyboardInterrupt:
-            print("You have entered CTRL+C.. Wait to finalize")
+            self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
     def train(self):
         """
@@ -180,7 +180,7 @@ class CondenseNetAgent(BaseAgent):
             self.summary_writer.add_scalar("epoch/accuracy", top1_acc.val, self.current_iteration)
         tqdm_batch.close()
 
-        print("Training at epoch-" + str(self.current_epoch) + " | " + "loss: " + str(
+        self.logger.info("Training at epoch-" + str(self.current_epoch) + " | " + "loss: " + str(
             epoch_loss.val) + "- Top1 Acc: " + str(top1_acc.val) + "- Top5 Acc: " + str(top5_acc.val))
 
     def validate(self):
@@ -215,7 +215,7 @@ class CondenseNetAgent(BaseAgent):
             top1_acc.update(top1.item(), x.size(0))
             top5_acc.update(top5.item(), x.size(0))
 
-        print("Validation results at epoch-" + str(self.current_epoch) + " | " + "loss: " + str(
+        self.logger.info("Validation results at epoch-" + str(self.current_epoch) + " | " + "loss: " + str(
             epoch_loss.avg) + "- Top1 Acc: " + str(top1_acc.val) + "- Top5 Acc: " + str(top5_acc.val))
 
         tqdm_batch.close()
@@ -227,7 +227,7 @@ class CondenseNetAgent(BaseAgent):
         Finalize all the operations of the 2 Main classes of the process the operator and the data loader
         :return:
         """
-        print("Please wait while finalizing the operation.. Thank you")
+        self.logger.info("Please wait while finalizing the operation.. Thank you")
         self.save_checkpoint()
         self.summary_writer.export_scalars_to_json("{}all_scalars.json".format(self.config.summary_dir))
         self.summary_writer.close()
