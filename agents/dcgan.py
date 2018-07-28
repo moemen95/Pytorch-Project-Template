@@ -66,6 +66,7 @@ class DCGANAgent(BaseAgent):
         random.seed(self.manual_seed)
         if self.cuda:
             self.device = torch.device("cuda")
+            torch.cuda.set_device(self.config.gpu_device)
             torch.cuda.manual_seed_all(self.manual_seed)
             self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()

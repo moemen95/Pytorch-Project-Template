@@ -60,6 +60,7 @@ class MnistAgent(BaseAgent):
         if self.cuda:
             torch.cuda.manual_seed(self.manual_seed)
             self.device = torch.device("cuda")
+            torch.cuda.set_device(self.config.gpu_device)
             self.model = self.model.to(self.device)
             self.loss = self.loss.to(self.device)
 

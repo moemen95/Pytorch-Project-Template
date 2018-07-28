@@ -68,6 +68,7 @@ class ERFNetAgent(BaseAgent):
         if self.cuda:
             torch.cuda.manual_seed_all(self.config.seed)
             self.device = torch.device("cuda")
+            torch.cuda.set_device(self.config.gpu_device)
             self.logger.info("Operation will be on *****GPU-CUDA***** ")
             print_cuda_statistics()
 

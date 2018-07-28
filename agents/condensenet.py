@@ -51,6 +51,7 @@ class CondenseNetAgent(BaseAgent):
         if self.cuda:
             self.device = torch.device("cuda")
             torch.cuda.manual_seed_all(self.config.seed)
+            torch.cuda.set_device(self.config.gpu_device)
             self.logger.info("Operation will be on *****GPU-CUDA***** ")
             print_cuda_statistics()
         else:

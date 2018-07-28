@@ -53,6 +53,7 @@ class ExampleAgent(BaseAgent):
         self.manual_seed = self.config.seed
         if self.cuda:
             torch.cuda.manual_seed_all(self.manual_seed)
+            torch.cuda.set_device(self.config.gpu_device)
             self.model = self.model.cuda()
             self.loss = self.loss.cuda()
             self.logger.info("Program will run on *****GPU-CUDA***** ")
