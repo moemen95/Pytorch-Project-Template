@@ -1,14 +1,14 @@
 # Mnist Tutorial
-This is a detailed tutorial on how to adapt your Pytorch code into our project structure.
+This is a detailed tutorial on how to adapt your PyTorch code into our project structure.
 
-We will walk through a Pytorch [basic model on Mnist](https://github.com/pytorch/examples/blob/master/mnist/main.py) and transform it into our template format.
+We will walk through a PyTorch [basic model on Mnist](https://github.com/pytorch/examples/blob/master/mnist/main.py) and transform it into our template format.
 
-### 1. The config file
+### 1. The config file:
 This is the core contribution of our template. We duplicate '/configs/exmaple_exp_0.json' and rename it to [mnist_exp_0.json](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json).
 We rename the agent and dataloader to the ones for Mnist. As we go, we will add and modify the configurations keys and values whenever needed.
 
 
-### 2. Main model
+### 2. Main model:
 
 We start by the model definition, defined here in our [reference](https://github.com/pytorch/examples/blob/master/mnist/main.py)
 
@@ -40,14 +40,14 @@ class Mnist(nn.Module):
 ```
 Now, the modified model can be found [here](https://github.com/moemen95/PyTorch-Project-Template/blob/master/graphs/models/mnist.py).
 
-### 3. Loss
+### 3. Loss:
 The example is using nll_loss as a function called during training and test times. We usually add a class for our loss into the folder 'graphs/losses'.
 Since we don't define our own loss function, we can use the same one from Pytorch directly.
 ```python
 self.loss = nn.NLLLoss()
 ```
 
-### 4. DataLoader
+### 4. DataLoader:
 We add a new file named [mnist.py](https://github.com/moemen95/PyTorch-Project-Template/blob/master/datasets/mnist.py) in the folder '/datasets'. The class is renamed into 'MnistDataLoader'.
 Below is the main part concerned with data loading, so we add it into the init of MnistDataLoader
 ```python
@@ -205,7 +205,7 @@ def validate(self):
 
 ### 5. Model Verification:
 
-In the [reference example](https://github.com/pytorch/examples/blob/master/mnist/main.py) main function, Go through the arguments parameters and make sure they are included inside the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json), with the correct values.
+In the [reference example](https://github.com/pytorch/examples/blob/master/mnist/main.py)'s main function, Go through the arguments parameters and make sure they are included inside the [config file](https://github.com/moemen95/PyTorch-Project-Template/blob/master/configs/mnist_exp_0.json), with the correct values.
 e.g. seed value
 
 - To run your code, change the config file name inside run.sh to be ``` mnist_exp_0.json ```

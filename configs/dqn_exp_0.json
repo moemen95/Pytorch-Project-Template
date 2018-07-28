@@ -3,6 +3,7 @@
   "agent": "DQNAgent",
 
   "cuda": true,
+  "gpu_device": 0,
   "seed": 1337,
 
   "image_size": 64,
