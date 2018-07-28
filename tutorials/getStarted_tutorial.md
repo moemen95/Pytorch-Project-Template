@@ -87,19 +87,18 @@ Dataloader is responsible for your dataset utilities and returns a PyTorch datal
     if config.data_mode == "numpy_train":
             normalize = v_transforms.Normalize(mean=[0.4914, 0.4824, 0.4467],
                                          std=[0.2471, 0.2435, 0.2616])
-    
-        train_set = v_datasets.CIFAR10('./data', train=True, download=True,
-                                     transform=v_transforms.Compose([
-                                         v_transforms.RandomCrop(32, padding=4),
-                                         v_transforms.RandomHorizontalFlip(),
-                                         v_transforms.ToTensor(),
-                                         normalize,
-                                     ]))
-        valid_set = v_datasets.CIFAR10('./data', train=False,
-                                   transform=v_transforms.Compose([
-                                       v_transforms.ToTensor(),
-                                       normalize,
-                                   ]))
+                train_set = v_datasets.CIFAR10('./data', train=True, download=True,
+                                         transform=v_transforms.Compose([
+                                             v_transforms.RandomCrop(32, padding=4),
+                                             v_transforms.RandomHorizontalFlip(),
+                                             v_transforms.ToTensor(),
+                                             normalize,
+                                         ]))
+            valid_set = v_datasets.CIFAR10('./data', train=False,
+                                       transform=v_transforms.Compose([
+                                           v_transforms.ToTensor(),
+                                           normalize,
+                                       ]))
     
         self.train_loader = DataLoader(train_set, batch_size=self.config.batch_size, shuffle=True)
         self.valid_loader = DataLoader(valid_set, batch_size=self.config.batch_size, shuffle=False)
