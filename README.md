@@ -1,4 +1,4 @@
-# PyTorch-Project-Template
+# PyTorch Project Template
 
 Implement your PyTorch projects the smart way.
 
@@ -17,12 +17,12 @@ We are proposing a baseline for any PyTorch project to give you a quick start, w
 ### Tutorials:
 We are providing a series of tutorials to get your started
 
-* [Getting Started from Scratch Tutorial](https://github.com/moemen95/PyTorch-Project-Template/blob/master/tutorials/template_tutorial.md) where we provide a guide on the main steps to get started on your project.
+* [Getting Started Tutorial](https://github.com/moemen95/PyTorch-Project-Template/blob/master/tutorials/getStarted_tutorial.md) where we provide a guide on the main steps to get started on your project.
 * [Mnist tutorial](https://github.com/moemen95/PyTorch-Project-Template/blob/master/tutorials/mnist_tutorial.md): Here we take an already implemented NN model on Mnist and adapt it to our template structure.
 
 ### Contribution:
 * We aim that this template can be a central place for different examples of the well-known PyTorch Deep learning models.
-* We are welcoming any contribution from the community that will make this come true. We urge people to add their PyTorch models into the template.
+* We are welcoming any contribution from the community that will make this come true so we urge people to add their PyTorch models into the template.
 * We are also welcoming any proposed changes about the class design pattern used in this project.
 
 ### Template Class Diagram:
@@ -36,6 +36,8 @@ We are providing a series of tutorials to get your started
 |  └── mnist.py
 |  └── dqn.py
 |  └── example.py
+|  └── base.py
+|  └── erfnet.py
 |
 ├── configs
 |  └── dcgan_exp_0.py
@@ -43,6 +45,7 @@ We are providing a series of tutorials to get your started
 |  └── mnist_exp_0.py
 |  └── dqn_exp_0.py
 |  └── example_exp_0.py
+|  └── erfnet_exp_0.py
 |
 ├── data
 |
@@ -51,6 +54,7 @@ We are providing a series of tutorials to get your started
 |  └── celebA.py
 |  └── mnist.py
 |  └── example.py
+|  └── voc2012.py
 |
 ├── experiments
 |
@@ -60,7 +64,10 @@ We are providing a series of tutorials to get your started
 |  |  |  └── denseblock.py
 |  |  |  └── layers.py
 |  |  |
-|  |  └── dcgan.py
+|  |  └── dcgan_discriminator.py
+|  |  └── dcgan_generator.py
+|  |  └── erfnet.py
+|  |  └── erfnet_imagenet.py
 |  |  └── condensenet.py
 |  |  └── mnist.py
 |  |  └── dqn.py
@@ -81,7 +88,7 @@ We are providing a series of tutorials to get your started
 ```
 
 ### Referenced Repos:
-1. [FCN8s](https://github.com/hagerrady13/FCN8s-Pytorch): A model for semantic **Segmentation**, trained on Pascal Voc
+1. [ERFNet](https://github.com/hagerrady13/ERFNet-PyTorch): A model for **Semantic Segmentation**, trained on Pascal Voc
 2. [DCGAN](https://github.com/hagerrady13/DCGAN-Pytorch): Deep Convolutional **Generative Adverserial Networks**, run on CelebA dataset.
 3. [CondenseNet](https://github.com/hagerrady13/CondenseNet-Pytorch): A model for Image **Classification**, trained on Cifar10 dataset
 4. [DQN](https://github.com/hagerrady13/DQN-Pytorch): Deep Q Network model, a **Reinforcement Learning** example, tested on CartPole-V0
@@ -91,6 +98,7 @@ We are providing a series of tutorials to get your started
 1) We started by DCGAN, adding its custom configs into the json file. DCGAN has both generator and discriminator model so it doesn't have a single model file.
 2) Then, we added CondenseNet, where it was necessary to create a custom blocks folder inside the models folder to include the definitions for custom layers within the model.
 3) After that, we added the DQN project, where all the classes related to the environment have been added to the utils. We also added the action selection and model optimization into the training agent.
+4) ERFNet was the last example to join the template; agent, model and utils have been added to their folders with no conflicts.
 
 This is to ensure that our proposed project structure is compatible with different problems and can handle all the variations related to any of them.
 

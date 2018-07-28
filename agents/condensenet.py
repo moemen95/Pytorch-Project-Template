@@ -13,7 +13,7 @@ from torch.autograd import Variable
 
 from agents.base import BaseAgent
 from graphs.models.condensenet import CondenseNet
-from graphs.losses.cross_entropy import CrossEntropyLoss2d
+from graphs.losses.cross_entropy import CrossEntropyLoss
 from datasets.cifar10 import Cifar10DataLoader
 
 from tensorboardX import SummaryWriter
@@ -32,7 +32,7 @@ class CondenseNetAgent(BaseAgent):
         # Create an instance from the data loader
         self.data_loader = Cifar10DataLoader(self.config)
         # Create instance from the loss
-        self.loss = CrossEntropyLoss2d()
+        self.loss = CrossEntropyLoss()
         # Create instance from the optimizer
         self.optimizer = torch.optim.SGD(self.model.parameters(),
                                          lr=self.config.learning_rate,
