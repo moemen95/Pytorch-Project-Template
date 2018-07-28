@@ -2,7 +2,10 @@
 
 Implement your PyTorch projects the smart way.
 
-A scalable template for PyTorch projects, with examples in Image Segmentation, Object classification, GANs and Reinforcement Learning.
+A **Scalable template** for PyTorch projects, with examples in Image Segmentation, Object classification, GANs and Reinforcement Learning.
+
+Given the nature of deep learning projects, we do not get the chance to think much about the project structure or the code modularity. After working with different deep learning projects and facing problems with files organization and code repetition, we came up with a **modular project structure** to accommodate any PyTorch project.
+We also wanted to provide **a base for different PyTorch models for the community** to build upon.
 
 This is a joint work between [Hager Rady](https://github.com/hagerrady13/) and [Mo'men AbdelRazek](https://github.com/moemen95)
 
@@ -23,10 +26,10 @@ This is a joint work between [Hager Rady](https://github.com/hagerrady13/) and [
 ### Why this template?
 
 We are proposing **a baseline** for any PyTorch project to give you a quick start, where you will get the time to focus on your model's implementation and we will handle the rest. The novelty of this approach lies in:
-- Providing a scalable project structure, with a template file for each.
+- Providing **a scalable project structure**, with a template file for each.
 - Introducing the usage of a config file that handle all the hyper-parameters related to a certain problem.
 - Embedding examples from various problems inside the template, where you can run any of them independently with a **single change** in the config file name.
-- Tutorials to get you started.
+- **Tutorials** to get you started.
 
 ### Tutorials:
 We are providing a series of tutorials to get your started
@@ -35,12 +38,12 @@ We are providing a series of tutorials to get your started
 * [Mnist Tutorial](https://github.com/moemen95/PyTorch-Project-Template/blob/master/tutorials/mnist_tutorial.md): Here we take an already implemented NN model on Mnist and adapt it to our template structure.
 
 ### Contribution:
-* We aim that this template can be a central place for different examples of the well-known PyTorch Deep learning models.
+* We want this template to be **a central place** for many variations of the well-known PyTorch Deep learning models.
 * We are welcoming any contribution from the community that will make this come true so we urge people to add their PyTorch models into the template.
-* We are also welcoming any proposed changes about the class design pattern used in this project.
+* We are also welcoming any proposed changes or discussions about the class design pattern used in this project.
 
 ### Template Class Diagram:
-![alt text](utils/assets/class_diagram.png)
+![alt text](utils/assets/class_diagram.png "Template Class diagram")
 
 ### Referenced Repos:
 1. [ERFNet](https://github.com/hagerrady13/ERFNet-PyTorch): A model for **Semantic Segmentation**, trained on Pascal Voc
