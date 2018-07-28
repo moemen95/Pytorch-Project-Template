@@ -3,13 +3,9 @@ ERFNet Model
 July 2017
 Adapted from: https://github.com/Eromera/erfnet_pytorch/blob/master/train/erfnet.py
 """
-import torch
 import torch.nn as nn
-import torch.nn.init as init
-import torch.nn.functional as F
 
-from graphs.models.custom_blocks.erf_blocks import DownsamplerBlock, UpsamplerBlock, non_bottleneck_1d
-from graphs.weights_initializer import weights_init_normal
+from graphs.models.custom_layers.erf_blocks import DownsamplerBlock, UpsamplerBlock, non_bottleneck_1d
 
 
 class ERF(nn.Module):

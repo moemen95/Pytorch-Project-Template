@@ -10,12 +10,9 @@ Eduardo Romera
 Taken from: https://github.com/Eromera/erfnet_pytorch/blob/master/train/erfnet_imagenet.py
 """
 
-import torch
 import torch.nn as nn
-import torch.nn.init as init
-import torch.nn.functional as F
 
-from graphs.models.custom_blocks.erf_blocks import DownsamplerBlock, non_bottleneck_1d
+from graphs.models.custom_layers.erf_blocks import DownsamplerBlock, non_bottleneck_1d
 
 
 class ERFNet(nn.Module):
