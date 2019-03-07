@@ -210,8 +210,9 @@ class DCGANAgent(BaseAgent):
 
         gen_out = self.netG(self.fixed_noise)
         out_img = self.dataloader.plot_samples_per_epoch(gen_out.data, self.current_iteration)
+        out_img = out_img.transpose((2, 0, 1))
         self.summary_writer.add_image('train/generated_image', out_img, self.current_iteration)
-
+        
         tqdm_batch.close()
 
         self.logger.info("Training at epoch-" + str(self.current_epoch) + " | " + "Discriminator loss: " + str(
