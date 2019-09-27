@@ -8,7 +8,7 @@ import json
 from easydict import EasyDict
 from pprint import pprint
 
-from utils.dirs import create_dirs, make_tensorboard_dir
+from utils.dirs import get_tensorboard_dir, get_checkpoint_dir, get_out_dir, get_logs_dir
 
 
 def setup_logging(log_dir):
@@ -81,11 +81,10 @@ def process_config(json_file):
         exit(-1)
 
     # create some important directories to be used for that experiment.
-    config.summary_dir = make_tensorboard_dir(config.exp_name)
-    config.checkpoint_dir = os.path.join("experiments", config.exp_name, "checkpoints/")
-    config.out_dir = os.path.join("experiments", config.exp_name, "out/")
-    config.log_dir = os.path.join("experiments", config.exp_name, "logs/")
-    create_dirs([config.summary_dir, config.checkpoint_dir, config.out_dir, config.log_dir])
+    config.summary_dir = get_tensorboard_dir(config.exp_name)
+    config.checkpoint_dir = get_checkpoint_dir(config.exp_name)
+    config.out_dir = get_out_dir(config.exp_name)
+    config.log_dir = get_logs_dir(config.exp_name)
 
     # setup logging in the project
     setup_logging(config.log_dir)

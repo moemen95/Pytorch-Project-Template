@@ -117,6 +117,9 @@ class MnistAgent(BaseAgent):
             self.train_one_epoch()
             self.validate()
 
+            # TODO pass is_best
+            self.save_checkpoint()
+
             self.current_epoch += 1
 
     def _log_train_iter(self, batch_idx, loss_val):
