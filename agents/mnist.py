@@ -166,12 +166,12 @@ class MnistAgent(BaseAgent):
         self.summary_writer.add_scalar(
             tag='Loss/validation',
             scalar_value=val_loss,
-            global_step=self.current_iteration,
+            global_step=self.current_epoch,
         )
         self.summary_writer.add_scalar(
             tag='Accuracy/validation',
             scalar_value=val_accuracy,
-            global_step=self.current_iteration,
+            global_step=self.current_epoch,
         )
 
     def finalize(self):

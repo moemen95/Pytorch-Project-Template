@@ -1,5 +1,18 @@
 import os
 import logging
+from pathlib import Path
+
+from utils.misc import get_datetime_str
+
+TBOARD_PATH = Path('tboard_logs')
+
+
+def make_tensorboard_dir(exp_name, with_timestamp=True):
+    tboard_dir = TBOARD_PATH / exp_name
+    if with_timestamp:
+        tboard_dir /= get_datetime_str()
+
+    return tboard_dir
 
 
 def create_dirs(dirs):

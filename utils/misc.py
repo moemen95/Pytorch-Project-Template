@@ -1,5 +1,6 @@
 import time
 import logging
+import datetime
 
 
 def timeit(f):
@@ -34,3 +35,7 @@ def print_cuda_statistics():
     logger.info('Active CUDA Device: GPU {}'.format(torch.cuda.current_device()))
     logger.info('Available devices  {}'.format(torch.cuda.device_count()))
     logger.info('Current cuda device  {}'.format(torch.cuda.current_device()))
+
+
+def get_datetime_str():
+    return datetime.datetime.now().strftime("%Y%m%d_%H%M%S")

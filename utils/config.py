@@ -8,7 +8,7 @@ import json
 from easydict import EasyDict
 from pprint import pprint
 
-from utils.dirs import create_dirs
+from utils.dirs import create_dirs, make_tensorboard_dir
 
 
 def setup_logging(log_dir):
@@ -23,11 +23,11 @@ def setup_logging(log_dir):
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(Formatter(log_console_format))
 
-    exp_file_handler = RotatingFileHandler('{}exp_debug.log'.format(log_dir), maxBytes=10**6, backupCount=5)
+    exp_file_handler = RotatingFileHandler('{}exp_debug.log'.format(log_dir), maxBytes=10 ** 6, backupCount=5)
     exp_file_handler.setLevel(logging.DEBUG)
     exp_file_handler.setFormatter(Formatter(log_file_format))
 
-    exp_errors_file_handler = RotatingFileHandler('{}exp_error.log'.format(log_dir), maxBytes=10**6, backupCount=5)
+    exp_errors_file_handler = RotatingFileHandler('{}exp_error.log'.format(log_dir), maxBytes=10 ** 6, backupCount=5)
     exp_errors_file_handler.setLevel(logging.WARNING)
     exp_errors_file_handler.setFormatter(Formatter(log_file_format))
 
@@ -68,7 +68,7 @@ def process_config(json_file):
     :return: config object(namespace)
     """
     config, _ = get_config_from_json(json_file)
-    print(" THE Configuration of your experiment ..")
+    print("Configuration of your experiment ..")
     pprint(config)
 
     # making sure that you have provided the exp_name.
@@ -81,7 +81,7 @@ def process_config(json_file):
         exit(-1)
 
     # create some important directories to be used for that experiment.
-    config.summary_dir = os.path.join("experiments", config.exp_name, "summaries/")
+    config.summary_dir = make_tensorboard_dir(config.exp_name)
     config.checkpoint_dir = os.path.join("experiments", config.exp_name, "checkpoints/")
     config.out_dir = os.path.join("experiments", config.exp_name, "out/")
     config.log_dir = os.path.join("experiments", config.exp_name, "logs/")
@@ -91,7 +91,7 @@ def process_config(json_file):
     setup_logging(config.log_dir)
 
     logging.getLogger().info("Hi, This is root.")
-    logging.getLogger().info("After the configurations are successfully processed and dirs are created.")
+    logging.getLogger().info("Configurations are successfully processed and dirs are created.")
     logging.getLogger().info("The pipeline of the project will begin now.")
 
     return config
