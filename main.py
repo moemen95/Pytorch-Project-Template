@@ -9,9 +9,9 @@ Main
 """
 
 import argparse
-from utils.config import *
 
-from agents import *
+from utils.config import *
+import agents
 
 
 def main():
@@ -28,7 +28,7 @@ def main():
     config = process_config(args.config)
 
     # Create the Agent and pass all the configuration to it then run it..
-    agent_class = globals()[config.agent]
+    agent_class = getattr(agents, config.agent)
     agent = agent_class(config)
     agent.run()
     agent.finalize()
