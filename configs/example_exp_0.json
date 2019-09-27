@@ -1,6 +1,6 @@
 {
   "exp_name": "example_exp_0",
-  "agent": "",
+  "agent": "ExampleAgent",
   "mode": "train",
 
   "cuda": true,

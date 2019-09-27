@@ -1,20 +1,7 @@
-import numpy as np
-
-from tqdm import tqdm
-import shutil
-import random
-
 import torch
-from torch import nn
 from torch.backends import cudnn
-from torch.autograd import Variable
 
 from agents.base import BaseAgent
-
-# import your classes here
-
-from tensorboardX import SummaryWriter
-from utils.metrics import AverageMeter, AverageMeterList
 from utils.misc import print_cuda_statistics
 
 cudnn.benchmark = True

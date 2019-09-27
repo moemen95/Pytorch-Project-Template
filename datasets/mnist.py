@@ -5,8 +5,7 @@ import imageio
 import torch
 import torchvision.utils as v_utils
 from torchvision import datasets, transforms
-
-from torch.utils.data import DataLoader, TensorDataset, Dataset
+from torch.utils.data import DataLoader, TensorDataset
 
 
 class MnistDataLoader:
@@ -23,7 +22,7 @@ class MnistDataLoader:
                                    transforms.Normalize((0.1307,), (0.3081,))
                                ])),
                 batch_size=self.config.batch_size, shuffle=True, num_workers=self.config.data_loader_workers, pin_memory=self.config.pin_memory)
-            self.test_loader = torch.utils.data.DataLoader(
+            self.val_loader = torch.utils.data.DataLoader(
                 datasets.MNIST('../data', train=False, transform=transforms.Compose([
                     transforms.ToTensor(),
                     transforms.Normalize((0.1307,), (0.3081,))
@@ -50,7 +49,7 @@ class MnistDataLoader:
             valid = TensorDataset(valid_data, valid_labels)
 
             self.train_loader = DataLoader(train, batch_size=config.batch_size, shuffle=True)
-            self.test_loader = DataLoader(valid, batch_size=config.batch_size, shuffle=False)
+            self.val_loader = DataLoader(valid, batch_size=config.batch_size, shuffle=False)
 
         else:
             raise Exception("Please specify in the json a specified mode in data_mode")

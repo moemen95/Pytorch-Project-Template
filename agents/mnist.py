@@ -55,7 +55,6 @@ class MnistAgent(BaseAgent):
             self.device = torch.device("cuda")
             torch.cuda.set_device(self.config.gpu_device)
             self.model = self.model.to(self.device)
-            # self.loss = self.loss.to(self.device)
 
             self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
@@ -67,7 +66,7 @@ class MnistAgent(BaseAgent):
         # Model Loading from the latest checkpoint if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
         # Summary Writer
-        # self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
+        self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
 
     def load_checkpoint(self, file_name):
         """
@@ -112,7 +111,6 @@ class MnistAgent(BaseAgent):
         One epoch of training
         :return:
         """
-
         self.model.train()
         for batch_idx, (data, target) in enumerate(self.data_loader.train_loader):
             data, target = data.to(self.device), target.to(self.device)
@@ -122,12 +120,19 @@ class MnistAgent(BaseAgent):
             loss.backward()
             self.optimizer.step()
             if batch_idx % self.config.log_interval == 0:
+                loss_val = loss.item()
                 self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     self.current_epoch, batch_idx * len(data),
                     len(self.data_loader.train_loader.dataset),
                     100. * batch_idx / len(self.data_loader.train_loader),
-                    loss.item(),
+                    loss_val,
                 ))
+                # log to tensorboard
+                self.summary_writer.add_scalar(
+                    tag='Loss/train',
+                    scalar_value=loss_val,
+                    global_step=self.current_iteration,
+                )
             self.current_iteration += 1
 
     def validate(self):
@@ -136,25 +141,38 @@ class MnistAgent(BaseAgent):
         :return:
         """
         self.model.eval()
-        test_loss = 0
+        val_loss = 0
         correct = 0
         with torch.no_grad():
-            for data, target in self.data_loader.test_loader:
+            for data, target in self.data_loader.val_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
                 # sum up batch loss
-                test_loss += self.loss_fn(output, target, size_average=False).item()
+                val_loss += self.loss_fn(output, target, size_average=False).item()
                 # get the index of the max log-probability
                 pred = output.max(1, keepdim=True)[1]
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
-        test_loss /= len(self.data_loader.test_loader.dataset)
-        self.logger.info('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss,
+        val_loss /= len(self.data_loader.val_loader.dataset)
+        val_accuracy = 100. * correct / len(self.data_loader.val_loader.dataset)
+
+        self.logger.info('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            val_loss,
             correct,
-            len(self.data_loader.test_loader.dataset),
-            100. * correct / len(self.data_loader.test_loader.dataset),
+            len(self.data_loader.val_loader.dataset),
+            val_accuracy,
         ))
+        # log to tensorboard
+        self.summary_writer.add_scalar(
+            tag='Loss/validation',
+            scalar_value=val_loss,
+            global_step=self.current_iteration,
+        )
+        self.summary_writer.add_scalar(
+            tag='Accuracy/validation',
+            scalar_value=val_accuracy,
+            global_step=self.current_iteration,
+        )
 
     def finalize(self):
         """
