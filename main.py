@@ -16,16 +16,20 @@ import agents
 
 def main():
     # parse the path of the json config file
-    arg_parser = argparse.ArgumentParser(description="")
-    arg_parser.add_argument(
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument(
         'config',
         metavar='config_json_file',
         default='None',
-        help='The Configuration file in json format')
-    args = arg_parser.parse_args()
+        help='The Configuration file in json format',
+    )
+    parser.add_argument('--debug', action='store_true')
+    args = parser.parse_args()
 
     # parse the config json file
     config = process_config(args.config)
+    # add debugging flag to config
+    config.debug = args.debug
 
     # Create the Agent and pass all the configuration to it then run it..
     agent_class = getattr(agents, config.agent)

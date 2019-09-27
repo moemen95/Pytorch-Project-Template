@@ -63,7 +63,7 @@ class MnistAgent(BaseAgent):
             torch.manual_seed(self.manual_seed)
             self.logger.info("Program will run on *****CPU*****\n")
 
-        # Model Loading from the latest checkpoint if not found start from scratch.
+        # Model Loading from the latest checkpoint - if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
         # Summary Writer
         self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
@@ -96,7 +96,8 @@ class MnistAgent(BaseAgent):
         :param is_best: boolean flag to indicate whether current checkpoint's accuracy is the best so far
         :return:
         """
-        pass
+        checkpoint_path = self.config.checkpoint_dir / f'epoch_{self.current_epoch}.pth'
+        torch.save(self._get_state_dict(), checkpoint_path)
 
     def run(self):
         """
@@ -121,6 +122,9 @@ class MnistAgent(BaseAgent):
             self.save_checkpoint()
 
             self.current_epoch += 1
+
+            if self.debug:
+                break
 
     def _log_train_iter(self, batch_idx, loss_val):
         self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -157,6 +161,9 @@ class MnistAgent(BaseAgent):
 
             self.current_iteration += 1
 
+            if self.debug:
+                break
+
     def validate(self):
         """
         One cycle of model validation
@@ -174,6 +181,9 @@ class MnistAgent(BaseAgent):
                 # get the index of the max log-probability
                 pred = output.max(1, keepdim=True)[1]
                 correct += pred.eq(target.view_as(pred)).sum().item()
+
+                if self.debug:
+                    break
 
         val_loss /= len(self.data_loader.val_loader.dataset)
         val_accuracy = 100. * correct / self.num_val_samples

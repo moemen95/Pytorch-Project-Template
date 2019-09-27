@@ -70,3 +70,7 @@ class BaseAgent:
         :return:
         """
         raise NotImplementedError
+
+    @property
+    def debug(self):
+        return self.config.debug
