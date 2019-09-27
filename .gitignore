@@ -106,6 +106,7 @@ ENV/
 # Experiments
 experiments/*
 !experiments/.keep
+tboard_logs/*
 
 # Pretrained Weights
 pretrained_weights/*
