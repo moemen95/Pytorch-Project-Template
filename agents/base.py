@@ -14,6 +14,11 @@ class BaseAgent:
         self.logger = logging.getLogger("Agent")
         self.agent_name = 'Base'
 
+    def _get_state_dict(self):
+        return {
+            'config': self.config,
+        }
+
     def load_checkpoint(self, file_name):
         """
         Latest checkpoint loader
@@ -22,7 +27,7 @@ class BaseAgent:
         """
         raise NotImplementedError
 
-    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=0):
+    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=False):
         """
         Checkpoint saver
         :param file_name: name of the checkpoint file

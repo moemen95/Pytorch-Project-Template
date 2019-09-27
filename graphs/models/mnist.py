@@ -3,10 +3,12 @@ Mnist tutorial main model
 """
 import torch.nn as nn
 import torch.nn.functional as F
+
+from graphs.models.base import BaseModel
 from ..weights_initializer import weights_init
 
 
-class Mnist(nn.Module):
+class Mnist(BaseModel):
     def __init__(self):
         super(Mnist, self).__init__()
         self.conv1 = nn.Conv2d(1, 10, kernel_size=5)

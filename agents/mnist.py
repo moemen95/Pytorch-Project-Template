@@ -68,6 +68,19 @@ class MnistAgent(BaseAgent):
         # Summary Writer
         self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
 
+    def _get_state_dict(self):
+        state_dict = super()._get_state_dict()
+
+        state_dict.update({
+            'epoch': self.current_epoch,
+            'iteration': self.current_iteration,
+            'model_name': self.model.name,
+            'model_state_dict': self.model.state_dict(),
+            'optimizer_state_dict': self.optimizer.state_dict(),
+        })
+
+        return state_dict
+
     def load_checkpoint(self, file_name):
         """
         Latest checkpoint loader
@@ -76,7 +89,7 @@ class MnistAgent(BaseAgent):
         """
         pass
 
-    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=0):
+    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=False):
         """
         Checkpoint saver
         :param file_name: name of the checkpoint file
@@ -106,6 +119,21 @@ class MnistAgent(BaseAgent):
 
             self.current_epoch += 1
 
+    def _log_train_iter(self, batch_idx, loss_val):
+        self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            self.current_epoch,
+            batch_idx * self.data_loader.train_loader.batch_size,
+            self.num_train_samples,
+            100. * batch_idx / len(self.data_loader.train_loader),
+            loss_val,
+        ))
+        # log to tensorboard
+        self.summary_writer.add_scalar(
+            tag='Loss/train',
+            scalar_value=loss_val,
+            global_step=self.current_iteration,
+        )
+
     def train_one_epoch(self):
         """
         One epoch of training
@@ -119,20 +147,11 @@ class MnistAgent(BaseAgent):
             loss = self.loss_fn(output, target)
             loss.backward()
             self.optimizer.step()
+
             if batch_idx % self.config.log_interval == 0:
                 loss_val = loss.item()
-                self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    self.current_epoch, batch_idx * len(data),
-                    len(self.data_loader.train_loader.dataset),
-                    100. * batch_idx / len(self.data_loader.train_loader),
-                    loss_val,
-                ))
-                # log to tensorboard
-                self.summary_writer.add_scalar(
-                    tag='Loss/train',
-                    scalar_value=loss_val,
-                    global_step=self.current_iteration,
-                )
+                self._log_train_iter(batch_idx=batch_idx, loss_val=loss_val)
+
             self.current_iteration += 1
 
     def validate(self):
@@ -154,12 +173,12 @@ class MnistAgent(BaseAgent):
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
         val_loss /= len(self.data_loader.val_loader.dataset)
-        val_accuracy = 100. * correct / len(self.data_loader.val_loader.dataset)
+        val_accuracy = 100. * correct / self.num_val_samples
 
         self.logger.info('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             val_loss,
             correct,
-            len(self.data_loader.val_loader.dataset),
+            self.num_val_samples,
             val_accuracy,
         ))
         # log to tensorboard
@@ -180,3 +199,11 @@ class MnistAgent(BaseAgent):
         :return:
         """
         pass
+
+    @property
+    def num_train_samples(self):
+        return len(self.data_loader.train_loader.dataset)
+
+    @property
+    def num_val_samples(self):
+        return len(self.data_loader.val_loader.dataset)
