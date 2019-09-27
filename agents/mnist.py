@@ -1,47 +1,40 @@
 """
 Mnist Main agent, as mentioned in the tutorial
 """
-import numpy as np
-
-from tqdm import tqdm
-import shutil
-import random
 
 import torch
-from torch import nn
 from torch.backends import cudnn
-from torch.autograd import Variable
 import torch.optim as optim
 import torch.nn.functional as F
+from torch.utils.tensorboard import SummaryWriter
 
 from agents.base import BaseAgent
-
 from graphs.models.mnist import Mnist
 from datasets.mnist import MnistDataLoader
-
-from tensorboardX import SummaryWriter
-from utils.metrics import AverageMeter, AverageMeterList
 from utils.misc import print_cuda_statistics
 
 cudnn.benchmark = True
 
 
 class MnistAgent(BaseAgent):
-
     def __init__(self, config):
         super().__init__(config)
 
+        # set agent name
+        self.agent_name = 'MNIST'
         # define models
         self.model = Mnist()
-
         # define data_loader
         self.data_loader = MnistDataLoader(config=config)
-
         # define loss
-        self.loss = nn.NLLLoss()
+        self.loss_fn = F.nll_loss
 
         # define optimizer
-        self.optimizer = optim.SGD(self.model.parameters(), lr=self.config.learning_rate, momentum=self.config.momentum)
+        self.optimizer = optim.SGD(
+            params=self.model.parameters(),
+            lr=self.config.learning_rate,
+            momentum=self.config.momentum,
+        )
 
         # initialize counter
         self.current_epoch = 0
@@ -62,7 +55,7 @@ class MnistAgent(BaseAgent):
             self.device = torch.device("cuda")
             torch.cuda.set_device(self.config.gpu_device)
             self.model = self.model.to(self.device)
-            self.loss = self.loss.to(self.device)
+            # self.loss = self.loss.to(self.device)
 
             self.logger.info("Program will run on *****GPU-CUDA***** ")
             print_cuda_statistics()
@@ -74,7 +67,7 @@ class MnistAgent(BaseAgent):
         # Model Loading from the latest checkpoint if not found start from scratch.
         self.load_checkpoint(self.config.checkpoint_file)
         # Summary Writer
-        self.summary_writer = None
+        # self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
 
     def load_checkpoint(self, file_name):
         """
@@ -100,7 +93,6 @@ class MnistAgent(BaseAgent):
         """
         try:
             self.train()
-
         except KeyboardInterrupt:
             self.logger.info("You have entered CTRL+C.. Wait to finalize")
 
@@ -114,6 +106,7 @@ class MnistAgent(BaseAgent):
             self.validate()
 
             self.current_epoch += 1
+
     def train_one_epoch(self):
         """
         One epoch of training
@@ -125,13 +118,16 @@ class MnistAgent(BaseAgent):
             data, target = data.to(self.device), target.to(self.device)
             self.optimizer.zero_grad()
             output = self.model(data)
-            loss = F.nll_loss(output, target)
+            loss = self.loss_fn(output, target)
             loss.backward()
             self.optimizer.step()
             if batch_idx % self.config.log_interval == 0:
                 self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                    self.current_epoch, batch_idx * len(data), len(self.data_loader.train_loader.dataset),
-                           100. * batch_idx / len(self.data_loader.train_loader), loss.item()))
+                    self.current_epoch, batch_idx * len(data),
+                    len(self.data_loader.train_loader.dataset),
+                    100. * batch_idx / len(self.data_loader.train_loader),
+                    loss.item(),
+                ))
             self.current_iteration += 1
 
     def validate(self):
@@ -146,14 +142,20 @@ class MnistAgent(BaseAgent):
             for data, target in self.data_loader.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 output = self.model(data)
-                test_loss += F.nll_loss(output, target, size_average=False).item()  # sum up batch loss
-                pred = output.max(1, keepdim=True)[1]  # get the index of the max log-probability
+                # sum up batch loss
+                test_loss += self.loss_fn(output, target, size_average=False).item()
+                # get the index of the max log-probability
+                pred = output.max(1, keepdim=True)[1]
                 correct += pred.eq(target.view_as(pred)).sum().item()
 
         test_loss /= len(self.data_loader.test_loader.dataset)
         self.logger.info('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, len(self.data_loader.test_loader.dataset),
-            100. * correct / len(self.data_loader.test_loader.dataset)))
+            test_loss,
+            correct,
+            len(self.data_loader.test_loader.dataset),
+            100. * correct / len(self.data_loader.test_loader.dataset),
+        ))
+
     def finalize(self):
         """
         Finalizes all the operations of the 2 Main classes of the process, the operator and the data loader
