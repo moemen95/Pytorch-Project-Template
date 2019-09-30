@@ -26,7 +26,7 @@
 
   "validate_every": 2,
 
-  "checkpoint_file": "",
+  "checkpoint_file": "20190930_153902/epoch_0.pth",
 
   "data_loader": "MnistDataLoader",
   "data_loader_workers": 2,

@@ -5,6 +5,7 @@ import logging
 
 import torch
 from torch.utils.tensorboard import SummaryWriter
+import numpy as np
 
 from utils.misc import print_cuda_statistics
 
@@ -86,6 +87,7 @@ class BaseTrainAgent(BaseAgent):
 
         self._init_counters()
         self._init_model()
+        self._init_optimizer()
         self._init_data_loader()
         self._init_device(use_cuda=self.config.cuda)
         self.set_random_seed(seed=self.config.seed)
@@ -100,6 +102,9 @@ class BaseTrainAgent(BaseAgent):
         self.current_iteration = 0
 
     def _init_model(self):
+        raise NotImplementedError()
+
+    def _init_optimizer(self):
         raise NotImplementedError()
 
     def _init_data_loader(self):
@@ -124,13 +129,19 @@ class BaseTrainAgent(BaseAgent):
         self.model = self.model.to(self.device)
 
     def set_random_seed(self, seed=None):
+        """
+        See https://pytorch.org/docs/stable/notes/randomness.html
+        and https://stackoverflow.com/questions/55097671/how-to-save-and-load-random-number-generator-state-in-pytorch
+        """
         self.manual_seed = seed
 
         if self.manual_seed is not None:
+            torch.manual_seed(self.manual_seed)
+            np.random.seed(self.manual_seed)
+
             if self.cuda:
-                torch.cuda.manual_seed(self.manual_seed)
-            else:
-                torch.manual_seed(self.manual_seed)
+                torch.backends.cudnn.deterministic = True
+                torch.backends.cudnn.benchmark = False
 
     def _get_state_dict(self):
         state_dict = super()._get_state_dict()
@@ -140,9 +151,20 @@ class BaseTrainAgent(BaseAgent):
             'iteration': self.current_iteration,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
+            'torch_random_state': torch.get_rng_state(),
+            'numpy_random_state': np.random.get_state(),
         })
 
         return state_dict
+
+    def _load_state_dict(self, state_dict):
+        self.current_epoch = state_dict['epoch'] + 1
+        self.current_iteration = state_dict['iteration']
+        self.model.load_state_dict(state_dict['model_state_dict'])
+        self.optimizer.load_state_dict(state_dict['optimizer_state_dict'])
+
+        torch.set_rng_state(state_dict['torch_random_state'])
+        np.random.set_state(state_dict['numpy_random_state'])
 
     @property
     def _checkpoint_path(self):
@@ -163,10 +185,7 @@ class BaseTrainAgent(BaseAgent):
             self.logger.info(f'Loading checkpoint "{checkpoint_path}"')
             checkpoint = torch.load(checkpoint_path)
 
-            self.current_epoch = checkpoint['epoch'] + 1
-            self.current_iteration = checkpoint['iteration']
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            self._load_state_dict(checkpoint)
 
             self.logger.info(
                 f"""Checkpoint loaded successfully from '{self.config.checkpoint_dir}' at (epoch {checkpoint['epoch']}) 
