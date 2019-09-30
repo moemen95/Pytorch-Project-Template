@@ -2,30 +2,24 @@
 Mnist Main agent, as mentioned in the tutorial
 """
 
-import torch
 from torch.backends import cudnn
 import torch.optim as optim
 import torch.nn.functional as F
-from torch.utils.tensorboard import SummaryWriter
 
-from agents.base import BaseAgent
+from agents.base import BaseTrainAgent
 from graphs.models.mnist import Mnist
 from datasets.mnist import MnistDataLoader
-from utils.misc import print_cuda_statistics
 
+# TODO might be better to move this someplace else
 cudnn.benchmark = True
 
 
-class MnistAgent(BaseAgent):
+class MnistAgent(BaseTrainAgent):
     def __init__(self, config):
         super().__init__(config)
 
         # set agent name
         self.agent_name = 'MNIST'
-        # define models
-        self.model = Mnist()
-        # define data_loader
-        self.data_loader = MnistDataLoader(config=config)
         # define loss
         self.loss_fn = F.nll_loss
 
@@ -36,206 +30,8 @@ class MnistAgent(BaseAgent):
             momentum=self.config.momentum,
         )
 
-        # initialize counter
-        self.current_epoch = 0
-        self.current_iteration = 0
-        self.best_metric = 0
+    def _init_model(self):
+        self.model = Mnist()
 
-        # set cuda flag
-        self.is_cuda = torch.cuda.is_available()
-        if self.is_cuda and not self.config.cuda:
-            self.logger.info("WARNING: You have a CUDA device, so you should probably enable CUDA")
-
-        self.cuda = self.is_cuda & self.config.cuda
-
-        # set the manual seed for torch
-        self.manual_seed = self.config.seed
-        if self.cuda:
-            torch.cuda.manual_seed(self.manual_seed)
-            self.device = torch.device("cuda")
-            torch.cuda.set_device(self.config.gpu_device)
-            self.model = self.model.to(self.device)
-
-            self.logger.info("Program will run on *****GPU-CUDA***** ")
-            print_cuda_statistics()
-        else:
-            self.device = torch.device("cpu")
-            torch.manual_seed(self.manual_seed)
-            self.logger.info("Program will run on *****CPU*****\n")
-
-        # Model Loading from the latest checkpoint - if not specified start from scratch.
-        self.load_checkpoint(self._checkpoint_path)
-        # Summary Writer
-        self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
-
-    def _get_state_dict(self):
-        state_dict = super()._get_state_dict()
-
-        state_dict.update({
-            'epoch': self.current_epoch,
-            'iteration': self.current_iteration,
-            'model_state_dict': self.model.state_dict(),
-            'optimizer_state_dict': self.optimizer.state_dict(),
-        })
-
-        return state_dict
-
-    @property
-    def _checkpoint_path(self):
-        return getattr(self.config, 'checkpoint_file', None)
-
-    def load_checkpoint(self, file_name=None):
-        """
-        Latest checkpoint loader
-        :param file_name: name of the checkpoint file
-        :return:
-        """
-        if file_name is not None and len(file_name) > 0:
-            # select the experiment directory - checkpoint_dir is of structure .../exp_name/datetime_str/
-            # and we will look for the checkpoint file under a different timestamp
-            checkpoint_path = self.config.checkpoint_dir.parent
-            checkpoint_path /= file_name
-
-            self.logger.info(f'Loading checkpoint "{checkpoint_path}"')
-            checkpoint = torch.load(checkpoint_path)
-
-            self.current_epoch = checkpoint['epoch'] + 1
-            self.current_iteration = checkpoint['iteration']
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-
-            self.logger.info(
-                f"""Checkpoint loaded successfully from '{self.config.checkpoint_dir}' at (epoch {checkpoint['epoch']}) 
-                at (iteration {checkpoint['iteration']})\n""")
-
-    def save_checkpoint(self, is_best=False):
-        """
-        Checkpoint saver
-        :param is_best: boolean flag to indicate whether current checkpoint's accuracy is the best so far
-        :return:
-        """
-        checkpoint_path = self.config.checkpoint_dir / f'epoch_{self.current_epoch}.pth'
-        torch.save(self._get_state_dict(), checkpoint_path)
-        if is_best:
-            best_checkpoint_path = self.config.checkpoint_dir / 'best.pth'
-            torch.save(self._get_state_dict(), best_checkpoint_path)
-
-    def run(self):
-        """
-        The main operator
-        :return:
-        """
-        try:
-            self.train()
-        except KeyboardInterrupt:
-            self.logger.info("You have entered CTRL+C.. Wait to finalize")
-
-    def train(self):
-        """
-        Main training loop
-        :return:
-        """
-        for epoch in range(self.current_epoch, self.config.max_epoch):
-            self.train_one_epoch()
-            self.validate()
-            self.save_checkpoint()
-
-            self.current_epoch += 1
-
-            if self.debug:
-                break
-
-    def _log_train_iter(self, batch_idx, loss_val):
-        self.logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-            self.current_epoch,
-            batch_idx * self.data_loader.train_loader.batch_size,
-            self.num_train_samples,
-            100. * batch_idx / len(self.data_loader.train_loader),
-            loss_val,
-        ))
-        # log to tensorboard
-        self.summary_writer.add_scalar(
-            tag='Loss/train',
-            scalar_value=loss_val,
-            global_step=self.current_iteration,
-        )
-
-    def train_one_epoch(self):
-        """
-        One epoch of training
-        :return:
-        """
-        self.model.train()
-        for batch_idx, (data, target) in enumerate(self.data_loader.train_loader):
-            data, target = data.to(self.device), target.to(self.device)
-            self.optimizer.zero_grad()
-            output = self.model(data)
-            loss = self.loss_fn(output, target)
-            loss.backward()
-            self.optimizer.step()
-
-            if batch_idx % self.config.log_interval == 0:
-                loss_val = loss.item()
-                self._log_train_iter(batch_idx=batch_idx, loss_val=loss_val)
-
-            self.current_iteration += 1
-
-            if self.debug:
-                break
-
-    def validate(self):
-        """
-        One cycle of model validation
-        :return:
-        """
-        self.model.eval()
-        val_loss = 0
-        correct = 0
-        with torch.no_grad():
-            for data, target in self.data_loader.val_loader:
-                data, target = data.to(self.device), target.to(self.device)
-                output = self.model(data)
-                # sum up batch loss
-                val_loss += self.loss_fn(output, target, size_average=False).item()
-                # get the index of the max log-probability
-                pred = output.max(1, keepdim=True)[1]
-                correct += pred.eq(target.view_as(pred)).sum().item()
-
-                if self.debug:
-                    break
-
-        val_loss /= len(self.data_loader.val_loader.dataset)
-        val_accuracy = 100. * correct / self.num_val_samples
-
-        self.logger.info('\nValidation set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            val_loss,
-            correct,
-            self.num_val_samples,
-            val_accuracy,
-        ))
-        # log to tensorboard
-        self.summary_writer.add_scalar(
-            tag='Loss/validation',
-            scalar_value=val_loss,
-            global_step=self.current_epoch,
-        )
-        self.summary_writer.add_scalar(
-            tag='Accuracy/validation',
-            scalar_value=val_accuracy,
-            global_step=self.current_epoch,
-        )
-
-    def finalize(self):
-        """
-        Finalizes all the operations of the 2 Main classes of the process, the operator and the data loader
-        :return:
-        """
-        pass
-
-    @property
-    def num_train_samples(self):
-        return len(self.data_loader.train_loader.dataset)
-
-    @property
-    def num_val_samples(self):
-        return len(self.data_loader.val_loader.dataset)
+    def _init_data_loader(self):
+        self.data_loader = MnistDataLoader(config=self.config)
