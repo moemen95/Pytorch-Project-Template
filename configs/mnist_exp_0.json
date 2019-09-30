@@ -26,7 +26,7 @@
 
   "validate_every": 2,
 
-  "checkpoint_file": "checkpoint.pth.tar",
+  "checkpoint_file": "",
 
   "data_loader": "MnistDataLoader",
   "data_loader_workers": 2,

@@ -23,7 +23,7 @@ def main():
         default='None',
         help='The Configuration file in json format',
     )
-    parser.add_argument('--debug', action='store_true')
+    parser.add_argument('--debug', action='store_true', default=False)
     args = parser.parse_args()
 
     # parse the config json file

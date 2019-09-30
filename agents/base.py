@@ -27,10 +27,9 @@ class BaseAgent:
         """
         raise NotImplementedError
 
-    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=False):
+    def save_checkpoint(self, is_best=False):
         """
         Checkpoint saver
-        :param file_name: name of the checkpoint file
         :param is_best: boolean flag to indicate whether current checkpoint's metric is the best so far
         :return:
         """

@@ -63,8 +63,8 @@ class MnistAgent(BaseAgent):
             torch.manual_seed(self.manual_seed)
             self.logger.info("Program will run on *****CPU*****\n")
 
-        # Model Loading from the latest checkpoint - if not found start from scratch.
-        self.load_checkpoint(self.config.checkpoint_file)
+        # Model Loading from the latest checkpoint - if not specified start from scratch.
+        self.load_checkpoint(self._checkpoint_path)
         # Summary Writer
         self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
 
@@ -74,30 +74,51 @@ class MnistAgent(BaseAgent):
         state_dict.update({
             'epoch': self.current_epoch,
             'iteration': self.current_iteration,
-            'model_name': self.model.name,
             'model_state_dict': self.model.state_dict(),
             'optimizer_state_dict': self.optimizer.state_dict(),
         })
 
         return state_dict
 
-    def load_checkpoint(self, file_name):
+    @property
+    def _checkpoint_path(self):
+        return getattr(self.config, 'checkpoint_file', None)
+
+    def load_checkpoint(self, file_name=None):
         """
         Latest checkpoint loader
         :param file_name: name of the checkpoint file
         :return:
         """
-        pass
+        if file_name is not None and len(file_name) > 0:
+            # select the experiment directory - checkpoint_dir is of structure .../exp_name/datetime_str/
+            # and we will look for the checkpoint file under a different timestamp
+            checkpoint_path = self.config.checkpoint_dir.parent
+            checkpoint_path /= file_name
 
-    def save_checkpoint(self, file_name="checkpoint.pth.tar", is_best=False):
+            self.logger.info(f'Loading checkpoint "{checkpoint_path}"')
+            checkpoint = torch.load(checkpoint_path)
+
+            self.current_epoch = checkpoint['epoch'] + 1
+            self.current_iteration = checkpoint['iteration']
+            self.model.load_state_dict(checkpoint['model_state_dict'])
+            self.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+            self.logger.info(
+                f"""Checkpoint loaded successfully from '{self.config.checkpoint_dir}' at (epoch {checkpoint['epoch']}) 
+                at (iteration {checkpoint['iteration']})\n""")
+
+    def save_checkpoint(self, is_best=False):
         """
         Checkpoint saver
-        :param file_name: name of the checkpoint file
         :param is_best: boolean flag to indicate whether current checkpoint's accuracy is the best so far
         :return:
         """
         checkpoint_path = self.config.checkpoint_dir / f'epoch_{self.current_epoch}.pth'
         torch.save(self._get_state_dict(), checkpoint_path)
+        if is_best:
+            best_checkpoint_path = self.config.checkpoint_dir / 'best.pth'
+            torch.save(self._get_state_dict(), best_checkpoint_path)
 
     def run(self):
         """
@@ -114,11 +135,9 @@ class MnistAgent(BaseAgent):
         Main training loop
         :return:
         """
-        for epoch in range(1, self.config.max_epoch + 1):
+        for epoch in range(self.current_epoch, self.config.max_epoch):
             self.train_one_epoch()
             self.validate()
-
-            # TODO pass is_best
             self.save_checkpoint()
 
             self.current_epoch += 1
