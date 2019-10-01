@@ -8,7 +8,7 @@ MnistDataLoader.pin_memory = True
 MnistDataLoader.test_batch_size = 1000
 MnistDataLoader.num_workers = 2
 
-BaseTrainAgent.summary_dir = 'tboard_logs'
+SummaryWriter.log_dir = 'tboard_logs'
 
 sgd.learning_rate = 0.01
 sgd.momentum = 0.5

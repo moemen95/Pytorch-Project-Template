@@ -85,11 +85,7 @@ class BaseAgent:
 
 @gin.configurable
 class BaseTrainAgent(BaseAgent):
-    def __init__(
-            self,
-            config,
-            summary_dir,
-    ):
+    def __init__(self, config, checkpoint_path=None):
         super().__init__(config)
 
         self.agent_name = 'BaseTrainAgent'
@@ -99,12 +95,9 @@ class BaseTrainAgent(BaseAgent):
         self._init_optimizer()
         self._init_data_loader()
         self._init_device()
+        self._init_tboard_logging()
 
-        # load model from the latest checkpoint - if not specified start from scratch.
-        # TODO gin
-        self.load_checkpoint(self._checkpoint_path)
-        # init SummaryWriter for tensorboard logging
-        self.summary_writer = SummaryWriter(log_dir=summary_dir, comment=self.agent_name)
+        self.load_checkpoint(checkpoint_path)
 
     def _init_counters(self):
         self.current_epoch = 0
@@ -122,6 +115,9 @@ class BaseTrainAgent(BaseAgent):
     def _init_device(self):
         self.device = configure_device()
         self.model = self.model.to(self.device)
+
+    def _init_tboard_logging(self):
+        self.summary_writer = SummaryWriter(comment=self.agent_name)
 
     def _get_state_dict(self):
         state_dict = super()._get_state_dict()
@@ -146,13 +142,9 @@ class BaseTrainAgent(BaseAgent):
         torch.set_rng_state(state_dict['torch_random_state'])
         np.random.set_state(state_dict['numpy_random_state'])
 
-    @property
-    def _checkpoint_path(self):
-        return getattr(self.config, 'checkpoint_file', None)
-
     def load_checkpoint(self, file_name=None):
         """
-        Latest checkpoint loader
+        Load model from the latest checkpoint - if not specified start from scratch.
         :param file_name: name of the checkpoint file
         :return:
         """
@@ -253,7 +245,6 @@ class BaseTrainAgent(BaseAgent):
         """
         self.model.eval()
         val_loss = 0
-        correct = 0
         with torch.no_grad():
             for data, target in self.data_loader.val_loader:
                 data, target = data.to(self.device), target.to(self.device)

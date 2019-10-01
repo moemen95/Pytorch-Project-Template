@@ -34,6 +34,9 @@ def main():
     config.debug = args.debug
 
     # TODO
+    # TODO probably should move this someplace else
+    from torch.utils.tensorboard import SummaryWriter
+    gin.external_configurable(SummaryWriter)
     gin.parse_config_file('configs/mnist_exp_0.gin')
 
     # Create the Agent and pass all the configuration to it then run it..
