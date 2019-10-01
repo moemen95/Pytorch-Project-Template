@@ -1,14 +1,10 @@
-import os
-
 import logging
 from logging import Formatter
 from logging.handlers import RotatingFileHandler
 
-import json
-from easydict import EasyDict
-from pprint import pprint
+import gin
 
-from utils.dirs import get_tensorboard_dir, get_checkpoint_dir, get_out_dir, get_logs_dir
+from utils.dirs import make_exp_dirs, CHECKPOINTS_DIR_GIN_MACRO_NAME
 
 
 def setup_logging(log_dir):
@@ -37,60 +33,39 @@ def setup_logging(log_dir):
     main_logger.addHandler(exp_errors_file_handler)
 
 
-def get_config_from_json(json_file):
-    """
-    Get the config from a json file
-    :param json_file: the path of the config file
-    :return: config(namespace), config(dictionary)
-    """
-
-    # parse the configurations from the config json file provided
-    with open(json_file, 'r') as config_file:
-        try:
-            config_dict = json.load(config_file)
-            # EasyDict allows to access dict values as attributes (works recursively).
-            config = EasyDict(config_dict)
-            return config, config_dict
-        except ValueError:
-            print("INVALID JSON file format.. Please provide a good json file")
-            exit(-1)
+def _gin_add_externals():
+    """Add external library bindings to gin."""
+    from torch.utils.tensorboard import SummaryWriter
+    gin.external_configurable(SummaryWriter)
 
 
-def process_config(json_file):
-    """
-    Get the json file
-    Processing it with EasyDict to be accessible as attributes
-    then editing the path of the experiments folder
-    creating some important directories in the experiment folder
-    Then setup the logging in the whole program
-    Then return the config
-    :param json_file: the path of the config file
-    :return: config object(namespace)
-    """
-    config, _ = get_config_from_json(json_file)
-    print("Configuration of your experiment ..")
-    pprint(config)
+def _gin_add_kwargs(gin_kwargs: dict):
+    """Updates the gin config by adding the passed values as gin macros."""
+    for key, val in gin_kwargs.items():
+        gin.bind_parameter(binding_key=f'%{key}', value=val)
 
-    # making sure that you have provided the exp_name.
-    try:
-        print(" *************************************** ")
-        print("The experiment name is {}".format(config.exp_name))
-        print(" *************************************** ")
-    except AttributeError:
-        print("ERROR!!..Please provide the exp_name in json file..")
-        exit(-1)
 
-    # create some important directories to be used for that experiment.
-    config.summary_dir = get_tensorboard_dir(config.exp_name)
-    config.checkpoint_dir = get_checkpoint_dir(config.exp_name)
-    config.out_dir = get_out_dir(config.exp_name)
-    config.log_dir = get_logs_dir(config.exp_name)
+def process_gin_config(config_file, gin_kwargs: dict):
+    # add external bindings before parsing the config file
+    _gin_add_externals()
+    # add custom values not provided in the config file as macros
+    _gin_add_kwargs(gin_kwargs)
+
+    gin.parse_config_file(config_file=config_file)
+
+    # TODO can this directory logic be moved outside of this function?
+    # create some important directories to be used for that experiment
+    summary_dir, checkpoints_dir, out_dir, log_dir = make_exp_dirs(exp_name=gin.REQUIRED)
+    gin.bind_parameter('SummaryWriter.log_dir', summary_dir)
+    _gin_add_kwargs({CHECKPOINTS_DIR_GIN_MACRO_NAME: checkpoints_dir})
 
     # setup logging in the project
-    setup_logging(config.log_dir)
+    setup_logging(log_dir)
+    logger = logging.getLogger()
 
-    logging.getLogger().info("Hi, This is root.")
-    logging.getLogger().info("Configurations are successfully processed and dirs are created.")
-    logging.getLogger().info("The pipeline of the project will begin now.")
+    logger.info(f"The experiment name is '{gin.query_parameter('%exp_name')}'")
+    logger.info("Configuration:")
+    logging.info(gin.config.config_str())
 
-    return config
+    logger.info("Configurations are successfully processed and dirs are created.")
+    logger.info("The pipeline of the project will begin now.")

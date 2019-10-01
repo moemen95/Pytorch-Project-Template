@@ -10,6 +10,7 @@ import numpy as np
 
 from graphs.optimizers import sgd
 from utils.devices import configure_device
+from utils.dirs import CHECKPOINTS_DIR_GIN_MACRO_NAME
 
 
 class BaseAgent:
@@ -17,14 +18,13 @@ class BaseAgent:
     This base class will contain the base functions to be overloaded by any agent you will implement.
     """
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
         self.logger = logging.getLogger("Agent")
         self.agent_name = 'Base'
 
     def _get_state_dict(self):
         return {
-            'config': self.config,
+            # TODO dump config here
         }
 
     def load_checkpoint(self, file_name):
@@ -80,15 +80,22 @@ class BaseAgent:
 
     @property
     def debug(self):
-        return self.config.debug
+        return gin.query_parameter('%debug')
 
 
 @gin.configurable
 class BaseTrainAgent(BaseAgent):
-    def __init__(self, config, checkpoint_path=None):
-        super().__init__(config)
+    def __init__(
+            self,
+            max_epoch,
+            log_interval=10,
+            checkpoint_path=None,
+    ):
+        super().__init__()
 
         self.agent_name = 'BaseTrainAgent'
+        self.max_epoch = max_epoch
+        self.log_interval = log_interval
 
         self._init_counters()
         self._init_model()
@@ -142,6 +149,16 @@ class BaseTrainAgent(BaseAgent):
         torch.set_rng_state(state_dict['torch_random_state'])
         np.random.set_state(state_dict['numpy_random_state'])
 
+    @property
+    def checkpoints_dir(self):
+        return gin.query_parameter(f'%{CHECKPOINTS_DIR_GIN_MACRO_NAME}')
+
+    @property
+    def experiments_dir(self):
+        # checkpoint_dir is of structure .../exp_name/datetime_str/
+        # and we will look for the checkpoint file under a different timestamp
+        return self.checkpoints_dir.parent
+
     def load_checkpoint(self, file_name=None):
         """
         Load model from the latest checkpoint - if not specified start from scratch.
@@ -149,18 +166,15 @@ class BaseTrainAgent(BaseAgent):
         :return:
         """
         if file_name is not None and len(file_name) > 0:
-            # select the experiment directory - checkpoint_dir is of structure .../exp_name/datetime_str/
-            # and we will look for the checkpoint file under a different timestamp
-            checkpoint_path = self.config.checkpoint_dir.parent
-            checkpoint_path /= file_name
+            checkpoint_path = self.experiments_dir / file_name
 
             self.logger.info(f'Loading checkpoint "{checkpoint_path}"')
-            checkpoint = torch.load(checkpoint_path)
 
+            checkpoint = torch.load(checkpoint_path)
             self._load_state_dict(checkpoint)
 
             self.logger.info(
-                f"""Checkpoint loaded successfully from '{self.config.checkpoint_dir}' at (epoch {checkpoint['epoch']}) 
+                f"""Checkpoint loaded successfully from '{checkpoint_path}' at (epoch {checkpoint['epoch']}) 
                 at (iteration {checkpoint['iteration']})\n""")
 
     def save_checkpoint(self, is_best=False):
@@ -169,10 +183,10 @@ class BaseTrainAgent(BaseAgent):
         :param is_best: boolean flag to indicate whether current checkpoint's accuracy is the best so far
         :return:
         """
-        checkpoint_path = self.config.checkpoint_dir / f'epoch_{self.current_epoch}.pth'
+        checkpoint_path = self.checkpoints_dir / f'epoch_{self.current_epoch}.pth'
         torch.save(self._get_state_dict(), checkpoint_path)
         if is_best:
-            best_checkpoint_path = self.config.checkpoint_dir / 'best.pth'
+            best_checkpoint_path = self.checkpoints_dir / 'best.pth'
             torch.save(self._get_state_dict(), best_checkpoint_path)
 
     def run(self):
@@ -190,7 +204,7 @@ class BaseTrainAgent(BaseAgent):
         Main training loop
         :return:
         """
-        for epoch in range(self.current_epoch, self.config.max_epoch):
+        for epoch in range(self.current_epoch, self.max_epoch):
             self.train_one_epoch()
             self.validate()
             self.save_checkpoint()
@@ -229,7 +243,7 @@ class BaseTrainAgent(BaseAgent):
             loss.backward()
             self.optimizer.step()
 
-            if batch_idx % self.config.log_interval == 0:
+            if batch_idx % self.log_interval == 0:
                 loss_val = loss.item()
                 self._log_train_iter(batch_idx=batch_idx, loss_val=loss_val)
 

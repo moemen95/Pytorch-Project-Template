@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import gin
+
 from utils.misc import get_datetime_str
 
 _TBOARD_PATH = Path('tboard_logs')
@@ -8,6 +10,7 @@ _CHECKPOINTS_PATH = Path('checkpoints')
 _OUT_PATH = Path('out')
 _LOGS_PATH = Path('logs')
 
+CHECKPOINTS_DIR_GIN_MACRO_NAME = 'checkpoints_dir'
 
 def _get_timestamped_path(
         parent_path,
@@ -39,36 +42,30 @@ def _get_timestamped_path(
     return dir_path
 
 
-def get_tensorboard_dir(exp_name, with_timestamp=True):
-    return _get_timestamped_path(
-        parent_path=_TBOARD_PATH,
-        middle_path=exp_name,
-        with_timestamp=with_timestamp,
-    )
-
-
-def get_checkpoint_dir(exp_name, with_timestamp=True):
-    return _get_timestamped_path(
-        parent_path=_EXPERIMENTS_PATH,
-        middle_path=exp_name,
-        child_path=_CHECKPOINTS_PATH,
-        with_timestamp=with_timestamp,
-    )
-
-
-def get_out_dir(exp_name, with_timestamp=True):
-    return _get_timestamped_path(
-        parent_path=_EXPERIMENTS_PATH,
-        middle_path=exp_name,
-        child_path=_OUT_PATH,
-        with_timestamp=with_timestamp,
-    )
-
-
-def get_logs_dir(exp_name, with_timestamp=True):
-    return _get_timestamped_path(
-        parent_path=_EXPERIMENTS_PATH,
-        middle_path=exp_name,
-        child_path=_LOGS_PATH,
-        with_timestamp=with_timestamp,
+@gin.configurable
+def make_exp_dirs(exp_name):
+    return (
+        # tboard
+        _get_timestamped_path(
+            parent_path=_TBOARD_PATH,
+            middle_path=exp_name,
+        ),
+        # checkpoints
+        _get_timestamped_path(
+            parent_path=_EXPERIMENTS_PATH,
+            middle_path=exp_name,
+            child_path=_CHECKPOINTS_PATH,
+        ),
+        # out dir
+        _get_timestamped_path(
+            parent_path=_EXPERIMENTS_PATH,
+            middle_path=exp_name,
+            child_path=_OUT_PATH,
+        ),
+        # logs
+        _get_timestamped_path(
+            parent_path=_EXPERIMENTS_PATH,
+            middle_path=exp_name,
+            child_path=_LOGS_PATH,
+        ),
     )

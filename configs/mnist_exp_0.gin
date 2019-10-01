@@ -1,14 +1,22 @@
+exp_name = 'mnist_exp_0'
+
+make_exp_dirs.exp_name = %exp_name
+
 configure_device.cuda = True
 configure_device.gpu_device = 0
 configure_device.seed = 1
+
+make_agent.agent_name = 'MnistAgent'
+
+BaseTrainAgent.max_epoch = 10
+BaseTrainAgent.log_interval = 10
+BaseTrainAgent.checkpoint_path = '20190930_153902/epoch_0.pth'
 
 MnistDataLoader.data_mode = 'download'
 MnistDataLoader.batch_size = 64
 MnistDataLoader.pin_memory = True
 MnistDataLoader.test_batch_size = 1000
 MnistDataLoader.num_workers = 2
-
-SummaryWriter.log_dir = 'tboard_logs'
 
 sgd.learning_rate = 0.01
 sgd.momentum = 0.5
