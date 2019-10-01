@@ -3,10 +3,12 @@ The Base Agent class, where all other agents inherit from, that contains definit
 """
 import logging
 
+import gin
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
+from graphs.optimizers import sgd
 from utils.misc import print_cuda_statistics
 
 
@@ -81,21 +83,31 @@ class BaseAgent:
         return self.config.debug
 
 
+@gin.configurable
 class BaseTrainAgent(BaseAgent):
-    def __init__(self, config):
+    def __init__(
+            self,
+            config,
+            cuda,
+            seed,
+            summary_dir,
+    ):
         super().__init__(config)
+
+        self.agent_name = 'BaseTrainAgent'
 
         self._init_counters()
         self._init_model()
         self._init_optimizer()
         self._init_data_loader()
-        self._init_device(use_cuda=self.config.cuda)
-        self.set_random_seed(seed=self.config.seed)
+        self._init_device(use_cuda=cuda)
+        self.set_random_seed(seed=seed)
 
         # load model from the latest checkpoint - if not specified start from scratch.
+        # TODO gin
         self.load_checkpoint(self._checkpoint_path)
         # init SummaryWriter for tensorboard logging
-        self.summary_writer = SummaryWriter(log_dir=self.config.summary_dir, comment=self.agent_name)
+        self.summary_writer = SummaryWriter(log_dir=summary_dir, comment=self.agent_name)
 
     def _init_counters(self):
         self.current_epoch = 0
@@ -105,7 +117,7 @@ class BaseTrainAgent(BaseAgent):
         raise NotImplementedError()
 
     def _init_optimizer(self):
-        raise NotImplementedError()
+        self.optimizer = sgd(params=self.model.parameters())
 
     def _init_data_loader(self):
         raise NotImplementedError()
@@ -114,6 +126,8 @@ class BaseTrainAgent(BaseAgent):
         cuda_available = torch.cuda.is_available()
         if cuda_available and not use_cuda:
             self.logger.info("WARNING: You have a CUDA device, but chose not to use it.")
+        if not cuda_available and use_cuda:
+            self.logger.info("WARNING: You specified cuda=True but no CUDA device found.")
 
         self.cuda = cuda_available & use_cuda
 

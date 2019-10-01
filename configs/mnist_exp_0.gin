@@ -1,0 +1,6 @@
+BaseTrainAgent.cuda = True
+BaseTrainAgent.seed = 1
+BaseTrainAgent.summary_dir = 'tboard_logs'
+
+sgd.learning_rate = 0.01
+sgd.momentum = 0.5

@@ -10,6 +10,8 @@ Main
 
 import argparse
 
+import gin
+
 from utils.config import *
 import agents
 
@@ -30,6 +32,9 @@ def main():
     config = process_config(args.config)
     # add debugging flag to config
     config.debug = args.debug
+
+    # TODO
+    gin.parse_config_file('configs/mnist_exp_0.gin')
 
     # Create the Agent and pass all the configuration to it then run it..
     agent_class = getattr(agents, config.agent)
