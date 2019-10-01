@@ -15,10 +15,10 @@ TBOARD_DIR_GIN_MACRO_NAME = 'tboard_dir'
 
 
 def _get_timestamped_path(
-        parent_path,
+        parent_path: Path,
         middle_path,
-        child_path=None,
-        with_timestamp=True,
+        child_path='',
+        timestamp='',
         create=True,
 ):
     """
@@ -27,16 +27,11 @@ def _get_timestamped_path(
     :param parent_path:
     :param middle_path:
     :param child_path:
-    :param with_timestamp: if True (default) will append an additional directory at the end of the path
-        with a timedate string
+    :param timestamp
     :param create: if True (default) will create all the directories in the path
     :return: pathlib.Path object
     """
-    dir_path = parent_path / middle_path
-    dir_path = dir_path / child_path if child_path is not None else dir_path
-
-    if with_timestamp:
-        dir_path /= get_datetime_str()
+    dir_path = parent_path / middle_path / child_path / timestamp
 
     if create:
         dir_path.mkdir(parents=True, exist_ok=True)
@@ -46,29 +41,35 @@ def _get_timestamped_path(
 
 @gin.configurable
 def make_exp_dirs(exp_name):
+    timestamp = get_datetime_str()
+
     return (
         # tboard
         _get_timestamped_path(
             parent_path=_TBOARD_PATH,
             middle_path=exp_name,
+            timestamp=timestamp,
         ),
         # checkpoints
         _get_timestamped_path(
             parent_path=_EXPERIMENTS_PATH,
             middle_path=exp_name,
             child_path=_CHECKPOINTS_PATH,
+            timestamp=timestamp,
         ),
         # out dir
         _get_timestamped_path(
             parent_path=_EXPERIMENTS_PATH,
             middle_path=exp_name,
             child_path=_OUT_PATH,
+            timestamp=timestamp,
         ),
         # logs
         _get_timestamped_path(
             parent_path=_EXPERIMENTS_PATH,
             middle_path=exp_name,
             child_path=_LOGS_PATH,
+            timestamp=timestamp,
         ),
     )
 

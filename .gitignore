@@ -107,6 +107,8 @@ ENV/
 experiments/*
 !experiments/.keep
 tboard_logs/*
+# just in case of a tensorboard SummaryWriter initialized with default values spawning some runs
+runs/*
 
 # Pretrained Weights
 pretrained_weights/*
