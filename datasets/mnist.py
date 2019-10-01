@@ -1,90 +1,67 @@
 """
 Mnist Data loader, as given in Mnist tutorial
 """
-import imageio
+import gin
 import torch
-import torchvision.utils as v_utils
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, TensorDataset
 
 
+@gin.configurable
 class MnistDataLoader:
-    def __init__(self, config):
-        """
-        :param config:
-        """
-        self.config = config
-        if config.data_mode == "download":
+    def __init__(
+            self,
+            data_mode,
+            batch_size,
+            test_batch_size,
+            pin_memory,
+            num_workers,
+            rand_input_channels=None,
+            rand_img_size=None,
+    ):
+        if data_mode == "download":
             self.train_loader = torch.utils.data.DataLoader(
                 datasets.MNIST('../data', train=True, download=True,
                                transform=transforms.Compose([
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.1307,), (0.3081,))
                                ])),
-                batch_size=self.config.batch_size, shuffle=True, num_workers=self.config.data_loader_workers, pin_memory=self.config.pin_memory)
+                batch_size=batch_size, shuffle=True, num_workers=num_workers,
+                pin_memory=pin_memory)
             self.val_loader = torch.utils.data.DataLoader(
                 datasets.MNIST('../data', train=False, transform=transforms.Compose([
                     transforms.ToTensor(),
                     transforms.Normalize((0.1307,), (0.3081,))
                 ])),
-                batch_size=self.config.test_batch_size, shuffle=True, num_workers=self.config.data_loader_workers, pin_memory=self.config.pin_memory)
-        elif config.data_mode == "imgs":
+                batch_size=test_batch_size, shuffle=True, num_workers=num_workers,
+                pin_memory=pin_memory)
+        elif data_mode == "imgs":
             raise NotImplementedError("This mode is not implemented YET")
 
-        elif config.data_mode == "numpy":
+        elif data_mode == "numpy":
             raise NotImplementedError("This mode is not implemented YET")
 
-        elif config.data_mode == "random":
-            train_data = torch.randn(self.config.batch_size, self.config.input_channels, self.config.img_size, self.config.img_size)
-            train_labels = torch.ones(self.config.batch_size).long()
+        elif data_mode == "random":
+            assert None not in (rand_img_size,
+                                rand_input_channels), 'Specify rand_img_size and rand_input_channels with data_mode=="random"'
+            train_data = torch.randn(batch_size, rand_input_channels, rand_img_size, rand_img_size)
+            train_labels = torch.ones(batch_size).long()
             valid_data = train_data
             valid_labels = train_labels
             self.len_train_data = train_data.size()[0]
             self.len_valid_data = valid_data.size()[0]
 
-            self.train_iterations = (self.len_train_data + self.config.batch_size - 1) // self.config.batch_size
-            self.valid_iterations = (self.len_valid_data + self.config.batch_size - 1) // self.config.batch_size
+            self.train_iterations = (self.len_train_data + batch_size - 1) // batch_size
+            self.valid_iterations = (self.len_valid_data + batch_size - 1) // batch_size
 
             train = TensorDataset(train_data, train_labels)
             valid = TensorDataset(valid_data, valid_labels)
 
-            self.train_loader = DataLoader(train, batch_size=config.batch_size, shuffle=True)
-            self.val_loader = DataLoader(valid, batch_size=config.batch_size, shuffle=False)
+            self.train_loader = DataLoader(train, batch_size=batch_size, shuffle=True)
+            self.val_loader = DataLoader(valid, batch_size=batch_size, shuffle=False)
 
         else:
             raise Exception("Please specify in the json a specified mode in data_mode")
 
-    def plot_samples_per_epoch(self, batch, epoch):
-        """
-        Plotting the batch images
-        :param batch: Tensor of shape (B,C,H,W)
-        :param epoch: the number of current epoch
-        :return: img_epoch: which will contain the image of this epoch
-        """
-        img_epoch = '{}samples_epoch_{:d}.png'.format(self.config.out_dir, epoch)
-        v_utils.save_image(batch,
-                           img_epoch,
-                           nrow=4,
-                           padding=2,
-                           normalize=True)
-        return imageio.imread(img_epoch)
-
-    def make_gif(self, epochs):
-        """
-        Make a gif from a multiple images of epochs
-        :param epochs: num_epochs till now
-        :return:
-        """
-        gen_image_plots = []
-        for epoch in range(epochs + 1):
-            img_epoch = '{}samples_epoch_{:d}.png'.format(self.config.out_dir, epoch)
-            try:
-                gen_image_plots.append(imageio.imread(img_epoch))
-            except OSError as e:
-                pass
-
-        imageio.mimsave(self.config.out_dir + 'animation_epochs_{:d}.gif'.format(epochs), gen_image_plots, fps=2)
-
     def finalize(self):
         pass
-

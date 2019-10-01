@@ -2,7 +2,12 @@ configure_device.cuda = True
 configure_device.gpu_device = 0
 configure_device.seed = 1
 
-BaseTrainAgent.seed = 1
+MnistDataLoader.data_mode = 'download'
+MnistDataLoader.batch_size = 64
+MnistDataLoader.pin_memory = True
+MnistDataLoader.test_batch_size = 1000
+MnistDataLoader.num_workers = 2
+
 BaseTrainAgent.summary_dir = 'tboard_logs'
 
 sgd.learning_rate = 0.01

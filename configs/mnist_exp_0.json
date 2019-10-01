@@ -3,18 +3,7 @@
   "agent": "MnistAgent",
   "mode": "train",
 
-  "cuda": true,
-  "gpu_device": 0,
-  "seed": 1,
-
   "some_model_attribute": 0,
-
-  "batch_size": 64,
-  "test_batch_size": 1000,
-
-  "weight_decay": 0,
-  "beta1": 0.5,
-  "beta2": 0.999,
 
   "max_epoch": 10,
 
@@ -24,9 +13,6 @@
 
   "checkpoint_file": "20190930_153902/epoch_0.pth",
 
-  "data_loader": "MnistDataLoader",
-  "data_loader_workers": 2,
-  "pin_memory": true,
   "async_loading": true,
 
   "data_mode": "download",

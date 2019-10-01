@@ -88,7 +88,6 @@ class BaseTrainAgent(BaseAgent):
     def __init__(
             self,
             config,
-            seed,
             summary_dir,
     ):
         super().__init__(config)
@@ -267,7 +266,7 @@ class BaseTrainAgent(BaseAgent):
 
         val_loss /= len(self.data_loader.val_loader.dataset)
 
-        self.logger.info(f'\nValidation set: Average loss: {val_loss:.4f}n')
+        self.logger.info(f'\nValidation set: Average loss: {val_loss:.4f}')
 
         # log to tensorboard
         self.summary_writer.add_scalar(
