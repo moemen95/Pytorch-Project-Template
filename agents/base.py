@@ -10,7 +10,7 @@ import numpy as np
 
 from graphs.optimizers import sgd
 from utils.devices import configure_device
-from utils.dirs import CHECKPOINTS_DIR_GIN_MACRO_NAME
+import utils.dirs as module_dirs
 
 
 class BaseAgent:
@@ -124,7 +124,10 @@ class BaseTrainAgent(BaseAgent):
         self.model = self.model.to(self.device)
 
     def _init_tboard_logging(self):
-        self.summary_writer = SummaryWriter(comment=self.agent_name)
+        self.summary_writer = SummaryWriter(
+            log_dir=module_dirs.get_current_tboard_dir(),
+            comment=self.agent_name,
+        )
 
     def _get_state_dict(self):
         state_dict = super()._get_state_dict()
@@ -151,7 +154,7 @@ class BaseTrainAgent(BaseAgent):
 
     @property
     def checkpoints_dir(self):
-        return gin.query_parameter(f'%{CHECKPOINTS_DIR_GIN_MACRO_NAME}')
+        return module_dirs.get_current_checkpoints_dir()
 
     @property
     def experiments_dir(self):

@@ -1,11 +1,8 @@
 """
 __author__ = "Hager Rady and Mo'men AbdelRazek"
 
-Main
--Capture the config file
--Process the gin config passed
--Create an agent instance
--Run the agent
+Parses the gin config file, creates necessary directories and
+finally instantiates an Agent object which then launches its pipeline.
 """
 
 import argparse
@@ -34,8 +31,8 @@ def main():
     parser.add_argument(
         '--debug',
         action='store_true',
-        # TODO keep false
-        default=True,
+        # default value specified for fast in-code changes
+        default=False,
     )
     args = parser.parse_args()
 

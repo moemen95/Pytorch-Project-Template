@@ -10,7 +10,7 @@ make_agent.agent_name = 'MnistAgent'
 
 BaseTrainAgent.max_epoch = 10
 BaseTrainAgent.log_interval = 10
-BaseTrainAgent.checkpoint_path = '20190930_153902/epoch_0.pth'
+#BaseTrainAgent.checkpoint_path = '20190930_153902/epoch_0.pth'
 
 MnistDataLoader.data_mode = 'download'
 MnistDataLoader.batch_size = 64

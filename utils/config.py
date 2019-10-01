@@ -4,7 +4,7 @@ from logging.handlers import RotatingFileHandler
 
 import gin
 
-from utils.dirs import make_exp_dirs, CHECKPOINTS_DIR_GIN_MACRO_NAME
+from utils.dirs import make_exp_dirs, CHECKPOINTS_DIR_GIN_MACRO_NAME, TBOARD_DIR_GIN_MACRO_NAME
 
 
 def setup_logging(log_dir):
@@ -33,12 +33,6 @@ def setup_logging(log_dir):
     main_logger.addHandler(exp_errors_file_handler)
 
 
-def _gin_add_externals():
-    """Add external library bindings to gin."""
-    from torch.utils.tensorboard import SummaryWriter
-    gin.external_configurable(SummaryWriter)
-
-
 def _gin_add_kwargs(gin_kwargs: dict):
     """Updates the gin config by adding the passed values as gin macros."""
     for key, val in gin_kwargs.items():
@@ -46,18 +40,17 @@ def _gin_add_kwargs(gin_kwargs: dict):
 
 
 def process_gin_config(config_file, gin_kwargs: dict):
-    # add external bindings before parsing the config file
-    _gin_add_externals()
     # add custom values not provided in the config file as macros
     _gin_add_kwargs(gin_kwargs)
 
     gin.parse_config_file(config_file=config_file)
 
-    # TODO can this directory logic be moved outside of this function?
     # create some important directories to be used for that experiment
     summary_dir, checkpoints_dir, out_dir, log_dir = make_exp_dirs(exp_name=gin.REQUIRED)
-    gin.bind_parameter('SummaryWriter.log_dir', summary_dir)
-    _gin_add_kwargs({CHECKPOINTS_DIR_GIN_MACRO_NAME: checkpoints_dir})
+    _gin_add_kwargs({
+        CHECKPOINTS_DIR_GIN_MACRO_NAME: checkpoints_dir,
+        TBOARD_DIR_GIN_MACRO_NAME: summary_dir,
+    })
 
     # setup logging in the project
     setup_logging(log_dir)

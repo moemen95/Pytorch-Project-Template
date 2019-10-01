@@ -11,6 +11,8 @@ _OUT_PATH = Path('out')
 _LOGS_PATH = Path('logs')
 
 CHECKPOINTS_DIR_GIN_MACRO_NAME = 'checkpoints_dir'
+TBOARD_DIR_GIN_MACRO_NAME = 'tboard_dir'
+
 
 def _get_timestamped_path(
         parent_path,
@@ -69,3 +71,11 @@ def make_exp_dirs(exp_name):
             child_path=_LOGS_PATH,
         ),
     )
+
+
+def get_current_tboard_dir():
+    return gin.query_parameter(f'%{TBOARD_DIR_GIN_MACRO_NAME}')
+
+
+def get_current_checkpoints_dir():
+    return gin.query_parameter(f'%{CHECKPOINTS_DIR_GIN_MACRO_NAME}')
