@@ -3,7 +3,7 @@ __author__ = "Hager Rady and Mo'men AbdelRazek"
 
 Main
 -Capture the config file
--Process the json config passed
+-Process the gin config passed
 -Create an agent instance
 -Run the agent
 """

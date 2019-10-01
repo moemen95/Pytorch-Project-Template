@@ -1,4 +1,7 @@
-BaseTrainAgent.cuda = True
+configure_device.cuda = True
+configure_device.gpu_device = 0
+configure_device.seed = 1
+
 BaseTrainAgent.seed = 1
 BaseTrainAgent.summary_dir = 'tboard_logs'
 

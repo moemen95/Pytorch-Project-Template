@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
 from graphs.optimizers import sgd
-from utils.misc import print_cuda_statistics
+from utils.devices import configure_device
 
 
 class BaseAgent:
@@ -88,7 +88,6 @@ class BaseTrainAgent(BaseAgent):
     def __init__(
             self,
             config,
-            cuda,
             seed,
             summary_dir,
     ):
@@ -100,8 +99,7 @@ class BaseTrainAgent(BaseAgent):
         self._init_model()
         self._init_optimizer()
         self._init_data_loader()
-        self._init_device(use_cuda=cuda)
-        self.set_random_seed(seed=seed)
+        self._init_device()
 
         # load model from the latest checkpoint - if not specified start from scratch.
         # TODO gin
@@ -122,40 +120,9 @@ class BaseTrainAgent(BaseAgent):
     def _init_data_loader(self):
         raise NotImplementedError()
 
-    def _init_device(self, use_cuda=True):
-        cuda_available = torch.cuda.is_available()
-        if cuda_available and not use_cuda:
-            self.logger.info("WARNING: You have a CUDA device, but chose not to use it.")
-        if not cuda_available and use_cuda:
-            self.logger.info("WARNING: You specified cuda=True but no CUDA device found.")
-
-        self.cuda = cuda_available & use_cuda
-
-        if self.cuda:
-            self.device = torch.device("cuda")
-            torch.cuda.set_device(self.config.gpu_device)
-            self.logger.info("Program will run on *****GPU-CUDA***** ")
-            print_cuda_statistics()
-        else:
-            self.device = torch.device("cpu")
-            self.logger.info("Program will run on *****CPU*****\n")
-
+    def _init_device(self):
+        self.device = configure_device()
         self.model = self.model.to(self.device)
-
-    def set_random_seed(self, seed=None):
-        """
-        See https://pytorch.org/docs/stable/notes/randomness.html
-        and https://stackoverflow.com/questions/55097671/how-to-save-and-load-random-number-generator-state-in-pytorch
-        """
-        self.manual_seed = seed
-
-        if self.manual_seed is not None:
-            torch.manual_seed(self.manual_seed)
-            np.random.seed(self.manual_seed)
-
-            if self.cuda:
-                torch.backends.cudnn.deterministic = True
-                torch.backends.cudnn.benchmark = False
 
     def _get_state_dict(self):
         state_dict = super()._get_state_dict()

@@ -1,12 +1,10 @@
-import torch
-from torch import nn
-from torch.backends import cudnn
-from torch.autograd import Variable
 import math
 
 """
 Learning rate adjustment used for CondenseNet model training
 """
+
+
 def adjust_learning_rate(optimizer, epoch, config, batch=None, nBatch=None, method='cosine'):
     if method == 'cosine':
         T_total = config.max_epoch * nBatch

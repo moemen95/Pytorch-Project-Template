@@ -12,10 +12,6 @@
   "batch_size": 64,
   "test_batch_size": 1000,
 
-  "learning_rate": 0.01,
-
-  "momentum": 0.5,
-
   "weight_decay": 0,
   "beta1": 0.5,
   "beta2": 0.999,
