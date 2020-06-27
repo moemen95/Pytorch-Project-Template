@@ -1,4 +1,4 @@
-<a href=“https://tracking.gitads.io/?repo=Pytorch-Project-Template”><img src="https://images.gitads.io/Pytorch-Project-Template" alt=“GitAds”/></a>
+[a link](<a href=“https://tracking.gitads.io/?repo=Pytorch-Project-Template”><img src="https://images.gitads.io/Pytorch-Project-Template" alt=“GitAds”/></a>)
 
 # PyTorch Project Template
 
