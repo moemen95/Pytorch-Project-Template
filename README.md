@@ -1,3 +1,5 @@
+PyTorch Project Template is being sponsored by the following tool; please help to support us by taking a look and signing up to a free trial
+
 [<img src="https://images.gitads.io/Pytorch-Project-Template" alt=“GitAds”/>](https://tracking.gitads.io/?repo=Pytorch-Project-Template)
 
 # PyTorch Project Template
