@@ -19,7 +19,8 @@ class CelebADataLoader:
 
         if config.data_mode == "imgs":
             transform = v_transforms.Compose(
-                [v_transforms.ToTensor(),
+                [v_transforms.CenterCrop(64),
+                 v_transforms.ToTensor(),
                  v_transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))])
 
             dataset = v_datasets.ImageFolder(self.config.data_folder, transform=transform)
