@@ -54,6 +54,7 @@ We are providing a series of tutorials to get your started
 2. [DCGAN](https://github.com/hagerrady13/DCGAN-Pytorch): Deep Convolutional **Generative Adverserial Networks**, run on CelebA dataset.
 3. [CondenseNet](https://github.com/hagerrady13/CondenseNet-Pytorch): A model for **Image Classification**, trained on Cifar10 dataset
 4. [DQN](https://github.com/hagerrady13/DQN-Pytorch): Deep Q Network model, a **Reinforcement Learning** example, tested on CartPole-V0
+5. [RecAE](https://github.com/PyLink88/Recurrent-Autoencoder): Recurrent neural networks based autoencoder for **Time series anomaly detection**, run on ECG5000 dataset
 
 ### Repos Migration Summary:
 
